@@ -1,0 +1,116 @@
+[gd_scene load_steps=4 format=3 uid="uid://b3m8v6qw1n7ge"]
+
+[ext_resource type="Script" path="res://scripts/world/intro.gd" id="1_intro"]
+[ext_resource type="Script" path="res://scripts/world/starfield.gd" id="2_starfield"]
+[ext_resource type="Script" path="res://scripts/world/planet.gd" id="3_planet"]
+
+[node name="Intro" type="Node2D"]
+script = ExtResource("1_intro")
+
+[node name="SpaceLayer" type="Node2D" parent="."]
+
+[node name="Background" type="ColorRect" parent="SpaceLayer"]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.043, 0.051, 0.09, 1)
+
+[node name="Starfield" type="Node2D" parent="SpaceLayer"]
+script = ExtResource("2_starfield")
+
+[node name="Planet" type="Node2D" parent="SpaceLayer"]
+position = Vector2(980, 560)
+script = ExtResource("3_planet")
+
+[node name="AtmosphereGlow" type="Node2D" parent="."]
+
+[node name="GlowLeft" type="ColorRect" parent="AtmosphereGlow"]
+offset_right = 160.0
+offset_bottom = 720.0
+color = Color(1, 0.5, 0.2, 0.22)
+
+[node name="GlowRight" type="ColorRect" parent="AtmosphereGlow"]
+offset_left = 1120.0
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(1, 0.5, 0.2, 0.22)
+
+[node name="GroundLayer" type="Node2D" parent="."]
+
+[node name="Ground" type="ColorRect" parent="GroundLayer"]
+offset_top = 600.0
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.36, 0.26, 0.16, 1)
+
+[node name="Rocket" type="Node2D" parent="."]
+position = Vector2(-80, 260)
+rotation = 1.5708
+
+[node name="Flame" type="Polygon2D" parent="Rocket"]
+position = Vector2(0, 24)
+color = Color(1, 0.6, 0.15, 0.9)
+polygon = PackedVector2Array(-6, 0, 6, 0, 0, 22)
+
+[node name="Body" type="Polygon2D" parent="Rocket"]
+color = Color(0.82, 0.83, 0.86, 1)
+polygon = PackedVector2Array(0, -40, 11, -18, 11, 20, -11, 20, -11, -18)
+
+[node name="FinLeft" type="Polygon2D" parent="Rocket"]
+color = Color(0.66, 0.24, 0.24, 1)
+polygon = PackedVector2Array(-11, 8, -24, 22, -11, 22)
+
+[node name="FinRight" type="Polygon2D" parent="Rocket"]
+color = Color(0.66, 0.24, 0.24, 1)
+polygon = PackedVector2Array(11, 8, 24, 22, 11, 22)
+
+[node name="Window" type="Polygon2D" parent="Rocket"]
+position = Vector2(0, -10)
+color = Color(0.31, 0.47, 0.6, 1)
+polygon = PackedVector2Array(-6, -6, 6, -6, 6, 6, -6, 6)
+
+[node name="SfxEngine" type="AudioStreamPlayer" parent="."]
+
+[node name="SfxAlarm" type="AudioStreamPlayer" parent="."]
+
+[node name="SfxImpact" type="AudioStreamPlayer" parent="."]
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ImpactFlash" type="ColorRect" parent="CanvasLayer"]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(1, 1, 1, 0)
+mouse_filter = 2
+
+[node name="CaptionLabel" type="Label" parent="CanvasLayer"]
+offset_left = 140.0
+offset_top = 630.0
+offset_right = 1140.0
+offset_bottom = 670.0
+theme_override_font_sizes/font_size = 20
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+text = ""
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="SkipButton" type="Button" parent="CanvasLayer"]
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -120.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 56.0
+grow_horizontal = 0
+text = "Skip >>"
+
+[node name="FadeToBlack" type="ColorRect" parent="CanvasLayer"]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0, 0, 0, 0)
+mouse_filter = 2
