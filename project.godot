@@ -1,0 +1,33 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes as, ex. "application"
+;   param=value ; property can be inspected in the property list
+
+config_version=5
+
+[application]
+
+config/name="PlazaPalabra"
+config/description="A short narrative Spanish language-learning game with turn-based, grammar-driven combat."
+run/main_scene="res://scenes/world/Main.tscn"
+config/features=PackedStringArray("4.4", "Forward Plus")
+config/icon="res://icon.svg"
+
+[autoload]
+
+PlayerProfile="*res://scripts/autoload/player_profile.gd"
+GameState="*res://scripts/autoload/game_state.gd"
+WordBank="*res://scripts/autoload/word_bank.gd"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=720
+window/stretch/mode="canvas_items"
+
+[rendering]
+
+renderer/rendering_method="mobile"
