@@ -66,8 +66,9 @@ func _on_choice_pressed(index: int) -> void:
 		_correct_count += 1
 
 	var word_id: String = _quiz_words[_current_index]
-	_results.append({"word_id": word_id, "chosen": chosen, "correct": is_correct})
-	StudySession.log_event("recall_quiz_answer", {"word_id": word_id, "correct": is_correct})
+	var is_review: bool = word_id in StudySession.prior_word_ids
+	_results.append({"word_id": word_id, "chosen": chosen, "correct": is_correct, "is_review": is_review})
+	StudySession.log_event("recall_quiz_answer", {"word_id": word_id, "correct": is_correct, "is_review": is_review})
 
 	_current_index += 1
 	if _current_index >= _quiz_words.size():

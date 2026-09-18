@@ -11,7 +11,7 @@ func _ready() -> void:
 
 func _on_agree() -> void:
 	StudySession.log_event("consent_given")
-	get_tree().change_scene_to_file("res://scenes/ui/PreSurvey.tscn")
+	get_tree().change_scene_to_file("res://scenes/ui/ParticipantScreen.tscn")
 
 func _on_decline() -> void:
 	StudySession.log_event("consent_declined")

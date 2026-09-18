@@ -1,15 +1,15 @@
-[gd_scene load_steps=2 format=3 uid="uid://dq7m2lax4n1p8"]
+[gd_scene load_steps=2 format=3 uid="uid://c58y3ja53jbgk"]
 
-[ext_resource type="Script" path="res://scripts/ui/pre_survey.gd" id="1_pre"]
+[ext_resource type="Script" path="res://scripts/ui/follow_up_survey.gd" id="1_followup"]
 
-[node name="PreSurvey" type="Control"]
+[node name="FollowUpSurvey" type="Control"]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-script = ExtResource("1_pre")
+script = ExtResource("1_followup")
 
 [node name="Background" type="ColorRect" parent="."]
 layout_mode = 1
@@ -36,7 +36,7 @@ theme_override_constants/separation = 14
 [node name="Title" type="Label" parent="VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 26
-text = "Before You Begin"
+text = "A Few Questions About Today's Session"
 
 [node name="Scroll" type="ScrollContainer" parent="VBox"]
 layout_mode = 2

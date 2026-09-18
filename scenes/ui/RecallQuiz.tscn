@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://fw3n8p2m5k1q7"]
+[gd_scene load_steps=2 format=3 uid="uid://b2osnn5eld50g"]
 
 [ext_resource type="Script" path="res://scripts/ui/recall_quiz.gd" id="1_quiz"]
 
