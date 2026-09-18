@@ -52,6 +52,10 @@ var _words: Dictionary = {
 		"spanish": "descansar", "english": "to rest", "role": "heal",
 		"example_es": "Yo descanso.", "example_en": "I rest.",
 	},
+	"nota": {
+		"spanish": "nota", "english": "note", "role": "noun",
+		"example_es": "Encuentro una nota.", "example_en": "I find a note.",
+	},
 	"sentirse_mejor": {
 		"spanish": "sentirme mejor", "english": "to feel better", "role": "heal",
 		"example_es": "Yo me siento mejor.", "example_en": "I feel better.",

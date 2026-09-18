@@ -10,6 +10,11 @@ func _ready() -> void:
 	add_to_group("player")
 
 func _physics_process(_delta: float) -> void:
+	if Dialogue.is_open:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		return
+
 	var dir := Vector2.ZERO
 	if Input.is_physical_key_pressed(KEY_W) or Input.is_physical_key_pressed(KEY_UP):
 		dir.y -= 1

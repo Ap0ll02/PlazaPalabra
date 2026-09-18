@@ -23,6 +23,7 @@ PlayerProfile="*res://scripts/autoload/player_profile.gd"
 GameState="*res://scripts/autoload/game_state.gd"
 WordBank="*res://scripts/autoload/word_bank.gd"
 Settings="*res://scripts/autoload/settings.gd"
+Dialogue="*res://scenes/ui/DialogueBox.tscn"
 
 [display]
 
