@@ -1,20 +1,45 @@
 extends Node2D
-## Stub for the tutorial start ("you wake up on the outskirts"). Movement,
-## scavenging, and the walk into town get built here next.
-##
-## The dev-only continue button exists purely so the consent -> pre-survey
-## -> [gameplay] -> post-survey -> recall quiz -> thank-you pipeline is
-## testable end to end before quests/tutorial gameplay exist. Remove it
-## once the real Ending beat can trigger PostSurvey.tscn itself.
+## Tutorial: movement + scavenging first nouns, gated entrance into town.
 
-@onready var dev_continue_button: Button = $DevContinueButton
+const MIN_ITEMS_TO_PROCEED := 3
+
+@onready var progress_label: Label = $CanvasLayer/ProgressLabel
+@onready var toast_label: Label = $CanvasLayer/ToastLabel
+@onready var town_entrance: Area2D = $TownEntrance
+
+var _items_collected := 0
+var _toast_tween: Tween
 
 func _ready() -> void:
 	GameState.set_quest_stage("tutorial")
-	dev_continue_button.pressed.connect(_on_dev_continue_pressed)
+	toast_label.modulate.a = 0.0
+	_update_progress_label()
+	for item in get_tree().get_nodes_in_group("scavenge_items"):
+		item.collected.connect(_on_item_collected)
+	town_entrance.body_entered.connect(_on_town_entrance_entered)
 
-func _on_dev_continue_pressed() -> void:
-	# Simulate a little gameplay so the recall quiz has something to ask.
-	for word_id in ["roca", "agua", "lanzar", "fuerte"]:
-		PlayerProfile.record_seen(word_id)
-	get_tree().change_scene_to_file("res://scenes/ui/PostSurvey.tscn")
+func _on_item_collected(word_id: String) -> void:
+	_items_collected += 1
+	_update_progress_label()
+	var word: Dictionary = WordBank.get_word(word_id)
+	_show_toast("Learned: %s (%s)" % [word.spanish, word.english])
+
+func _update_progress_label() -> void:
+	progress_label.text = "Items found: %d / %d" % [_items_collected, MIN_ITEMS_TO_PROCEED]
+
+func _on_town_entrance_entered(body: Node) -> void:
+	if not body.is_in_group("player"):
+		return
+	if _items_collected >= MIN_ITEMS_TO_PROCEED:
+		get_tree().change_scene_to_file("res://scenes/world/Town.tscn")
+	else:
+		_show_toast("Find a few more things before heading into town.")
+
+func _show_toast(text: String) -> void:
+	toast_label.text = text
+	if _toast_tween:
+		_toast_tween.kill()
+	toast_label.modulate.a = 1.0
+	_toast_tween = create_tween()
+	_toast_tween.tween_interval(1.6)
+	_toast_tween.tween_property(toast_label, "modulate:a", 0.0, 0.5)

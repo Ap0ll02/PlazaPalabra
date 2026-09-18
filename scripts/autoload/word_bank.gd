@@ -16,6 +16,10 @@ var _words: Dictionary = {
 		"spanish": "agua", "english": "water", "role": "noun",
 		"example_es": "Necesito agua.", "example_en": "I need water.",
 	},
+	"arbol": {
+		"spanish": "árbol", "english": "tree", "role": "noun",
+		"example_es": "Hay un árbol aquí.", "example_en": "There is a tree here.",
+	},
 	"lanzar": {
 		"spanish": "lanzar", "english": "to throw", "role": "attack",
 		"example_es": "Yo lanzo la roca.", "example_en": "I throw the rock.",
