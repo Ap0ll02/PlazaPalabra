@@ -11,7 +11,7 @@ func _ready() -> void:
 	play_button.grab_focus()
 
 func _on_play_pressed() -> void:
-	get_tree().change_scene_to_file("res://scenes/world/Intro.tscn")
+	get_tree().change_scene_to_file("res://scenes/ui/ConsentScreen.tscn")
 
 func _on_settings_pressed() -> void:
 	get_tree().change_scene_to_file("res://scenes/ui/SettingsMenu.tscn")

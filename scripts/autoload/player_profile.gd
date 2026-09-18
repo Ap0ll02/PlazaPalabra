@@ -22,6 +22,7 @@ func _stat(word_id: String) -> Dictionary:
 
 func record_seen(word_id: String) -> void:
 	_stat(word_id).seen += 1
+	StudySession.log_event("word_seen", {"word_id": word_id})
 
 ## Cost as a fraction of the action's effect (0.0 = free, 0.10 = -10%).
 ## Pure query, does not mutate state -- safe to call for UI preview.
@@ -38,6 +39,7 @@ func record_hint(word_id: String) -> float:
 	var cost := get_hint_cost(word_id)
 	_stat(word_id).hinted += 1
 	_stat(word_id).unhinted_streak = 0
+	StudySession.log_event("hint_used", {"word_id": word_id, "cost": cost})
 	return cost
 
 ## Call when the player resolves a slot correctly. `was_hinted` should
@@ -49,6 +51,7 @@ func record_correct(word_id: String, was_hinted: bool) -> void:
 		stat.unhinted_streak = 0
 	else:
 		stat.unhinted_streak += 1
+	StudySession.log_event("word_correct", {"word_id": word_id, "was_hinted": was_hinted})
 
 func is_mastered(word_id: String) -> bool:
 	return _stat(word_id).unhinted_streak >= MASTERY_UNHINTED_STREAK

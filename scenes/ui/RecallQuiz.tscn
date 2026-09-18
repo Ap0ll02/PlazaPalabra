@@ -1,0 +1,73 @@
+[gd_scene load_steps=2 format=3 uid="uid://fw3n8p2m5k1q7"]
+
+[ext_resource type="Script" path="res://scripts/ui/recall_quiz.gd" id="1_quiz"]
+
+[node name="RecallQuiz" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_quiz")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.106, 0.09, 0.071, 1)
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -320.0
+offset_top = -160.0
+offset_right = 320.0
+offset_bottom = 160.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 18
+
+[node name="ProgressLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+text = "1 / 8"
+horizontal_alignment = 1
+
+[node name="QuestionLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 24
+text = "What does \"...\" mean in English?"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="Choices" type="VBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Choice0" type="Button" parent="VBox/Choices"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Choice A"
+
+[node name="Choice1" type="Button" parent="VBox/Choices"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Choice B"
+
+[node name="Choice2" type="Button" parent="VBox/Choices"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Choice C"
+
+[node name="Choice3" type="Button" parent="VBox/Choices"]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+text = "Choice D"

@@ -14,14 +14,17 @@ var flags: Dictionary = {}
 func set_quest_stage(stage: String) -> void:
 	quest_stage = stage
 	quest_stage_changed.emit(stage)
+	StudySession.log_event("quest_stage_changed", {"stage": stage})
 
 func damage_player(amount: int) -> void:
 	hp = max(0, hp - amount)
 	hp_changed.emit(hp, MAX_HP)
+	StudySession.log_event("player_damaged", {"amount": amount, "hp": hp})
 
 func heal_player(amount: int) -> void:
 	hp = min(MAX_HP, hp + amount)
 	hp_changed.emit(hp, MAX_HP)
+	StudySession.log_event("player_healed", {"amount": amount, "hp": hp})
 
 func set_flag(key: String, value = true) -> void:
 	flags[key] = value

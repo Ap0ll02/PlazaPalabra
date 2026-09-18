@@ -1,0 +1,82 @@
+[gd_scene load_steps=2 format=3 uid="uid://cvx1q8n3m7t2w"]
+
+[ext_resource type="Script" path="res://scripts/ui/consent_screen.gd" id="1_consent"]
+
+[node name="ConsentScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_consent")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.106, 0.09, 0.071, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 120
+theme_override_constants/margin_top = 60
+theme_override_constants/margin_right = 120
+theme_override_constants/margin_bottom = 60
+
+[node name="VBox" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Research Study Consent"
+
+[node name="PlaceholderNotice" type="Label" parent="Margin/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.6, 0.3, 1)
+text = "[PLACEHOLDER TEXT -- replace with IRB-approved consent language before running a real session]"
+autowrap_mode = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="Margin/VBox"]
+custom_minimum_size = Vector2(0, 320)
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="ConsentText" type="Label" parent="Margin/VBox/ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "You are being invited to take part in a research study about language learning through gameplay.
+
+What you will do: play a short (10-20 minute) narrative game, answer a brief survey before and after playing, and complete a short vocabulary recall quiz at the end.
+
+Data collected: your in-game actions (e.g. words encountered, hints used, combat choices) and your survey/quiz answers. This data is stored locally on this computer and is not linked to your name.
+
+Voluntary participation: you may stop at any time without penalty. Declining below will not affect you in any way.
+
+Contact: [researcher name / email / IRB contact placeholder]."
+autowrap_mode = 2
+
+[node name="ButtonRow" type="HBoxContainer" parent="Margin/VBox"]
+layout_mode = 2
+alignment = 1
+theme_override_constants/separation = 20
+
+[node name="DeclineButton" type="Button" parent="Margin/VBox/ButtonRow"]
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+text = "I Do Not Agree"
+
+[node name="AgreeButton" type="Button" parent="Margin/VBox/ButtonRow"]
+custom_minimum_size = Vector2(220, 48)
+layout_mode = 2
+text = "I Agree -- Continue"
