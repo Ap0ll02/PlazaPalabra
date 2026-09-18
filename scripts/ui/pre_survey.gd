@@ -20,3 +20,13 @@ func _get_config() -> Dictionary:
 		"filename": "survey_pre.json",
 		"next_scene": "res://scenes/world/Intro.tscn",
 	}
+
+@onready var dev_skip_button: Button = $DevSkipButton
+
+func _ready() -> void:
+	super._ready()
+	dev_skip_button.pressed.connect(_on_dev_skip_pressed)
+
+func _on_dev_skip_pressed() -> void:
+	StudySession.log_event("survey_dev_skipped", {"file": _get_config().filename})
+	get_tree().change_scene_to_file(_get_config().next_scene)
