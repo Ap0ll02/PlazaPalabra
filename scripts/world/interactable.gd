@@ -11,7 +11,9 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 
 func _process(_delta: float) -> void:
-	if _player_in_range and not Dialogue.is_open and Input.is_action_just_pressed("ui_accept"):
+	if _player_in_range and not Dialogue.is_open \
+			and Engine.get_process_frames() != Dialogue.closed_frame \
+			and Input.is_action_just_pressed("ui_accept"):
 		_on_interact()
 
 func _on_body_entered(body: Node) -> void:

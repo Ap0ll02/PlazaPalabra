@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://lz9q4m2n8k1p6"]
+[gd_scene load_steps=9 format=3 uid="uid://lz9q4m2n8k1p6"]
 
 [ext_resource type="Script" path="res://scripts/world/town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
@@ -11,6 +11,9 @@ size = Vector2(28, 28)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
 radius = 50.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(60, 160)
 
 [node name="Town" type="Node2D"]
 script = ExtResource("1_town")
@@ -44,6 +47,7 @@ shape = SubResource("RectangleShape2D_player")
 position = Vector2(420, 300)
 script = ExtResource("3_mira")
 npc_name = "Mira"
+portrait_id = "mira"
 
 [node name="Visual" type="Polygon2D" parent="Mira"]
 color = Color(0.75, 0.4, 0.45, 1)
@@ -56,6 +60,7 @@ shape = SubResource("CircleShape2D_npc")
 position = Vector2(1080, 500)
 script = ExtResource("4_tomas")
 npc_name = "Tomas"
+portrait_id = "tomas"
 
 [node name="Visual" type="Polygon2D" parent="Tomas"]
 color = Color(0.5, 0.45, 0.7, 1)
@@ -117,6 +122,30 @@ polygon = PackedVector2Array(-18, 14, -18, -10, 18, -10, 18, 14)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SearchSpot3"]
 shape = SubResource("CircleShape2D_npc")
+
+[node name="RuinsExit" type="Area2D" parent="."]
+visible = false
+position = Vector2(1240, 360)
+monitoring = false
+
+[node name="Visual" type="ColorRect" parent="RuinsExit"]
+offset_left = -30.0
+offset_top = -80.0
+offset_right = 30.0
+offset_bottom = 80.0
+color = Color(0.5, 0.4, 0.55, 0.6)
+
+[node name="Label" type="Label" parent="RuinsExit"]
+offset_left = -50.0
+offset_top = -110.0
+offset_right = 30.0
+offset_bottom = -82.0
+theme_override_font_sizes/font_size = 14
+text = "Ruins ->"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="RuinsExit"]
+shape = SubResource("RectangleShape2D_exit")
 
 [node name="DevContinueButton" type="Button" parent="."]
 offset_left = 1090.0

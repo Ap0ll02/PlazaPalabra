@@ -1,0 +1,128 @@
+[gd_scene load_steps=7 format=3 uid="uid://ck3m8w2n5p7q1"]
+
+[ext_resource type="Script" path="res://scripts/world/ruins.gd" id="1_ruins"]
+[ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/world/scavenge_item.gd" id="3_item"]
+[ext_resource type="Script" path="res://scripts/world/npcs/sombra_npc.gd" id="4_sombra"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(28, 28)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_item"]
+radius = 18.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
+radius = 60.0
+
+[node name="Ruins" type="Node2D"]
+script = ExtResource("1_ruins")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.24, 0.23, 0.27, 1)
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 900.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "The old ruins. Look around before you go any further."
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(80, 380)
+script = ExtResource("2_player")
+
+[node name="Visual" type="Polygon2D" parent="Player"]
+color = Color(0.4, 0.65, 0.9, 1)
+polygon = PackedVector2Array(0, -16, 14, 10, 0, 16, -14, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_player")
+
+[node name="ScrollLanzar" type="Area2D" parent="."]
+position = Vector2(380, 220)
+script = ExtResource("3_item")
+word_id = "lanzar"
+
+[node name="Visual" type="Polygon2D" parent="ScrollLanzar"]
+color = Color(0.85, 0.78, 0.6, 1)
+polygon = PackedVector2Array(-16, -8, 16, -8, 16, 8, -16, 8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ScrollLanzar"]
+shape = SubResource("CircleShape2D_item")
+
+[node name="ScrollGolpear" type="Area2D" parent="."]
+position = Vector2(560, 540)
+script = ExtResource("3_item")
+word_id = "golpear"
+
+[node name="Visual" type="Polygon2D" parent="ScrollGolpear"]
+color = Color(0.85, 0.78, 0.6, 1)
+polygon = PackedVector2Array(-16, -8, 16, -8, 16, 8, -16, 8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ScrollGolpear"]
+shape = SubResource("CircleShape2D_item")
+
+[node name="ScrollBloquear" type="Area2D" parent="."]
+position = Vector2(760, 250)
+script = ExtResource("3_item")
+word_id = "bloquear"
+
+[node name="Visual" type="Polygon2D" parent="ScrollBloquear"]
+color = Color(0.85, 0.78, 0.6, 1)
+polygon = PackedVector2Array(-16, -8, 16, -8, 16, 8, -16, 8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ScrollBloquear"]
+shape = SubResource("CircleShape2D_item")
+
+[node name="ScrollDescansar" type="Area2D" parent="."]
+position = Vector2(900, 540)
+script = ExtResource("3_item")
+word_id = "descansar"
+
+[node name="Visual" type="Polygon2D" parent="ScrollDescansar"]
+color = Color(0.85, 0.78, 0.6, 1)
+polygon = PackedVector2Array(-16, -8, 16, -8, 16, 8, -16, 8)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ScrollDescansar"]
+shape = SubResource("CircleShape2D_item")
+
+[node name="Sombra" type="Area2D" parent="."]
+position = Vector2(1120, 360)
+script = ExtResource("4_sombra")
+npc_name = "Sombra"
+portrait_id = "sombra"
+
+[node name="Visual" type="Polygon2D" parent="Sombra"]
+color = Color(0.25, 0.2, 0.3, 1)
+polygon = PackedVector2Array(0, -24, 16, 4, 9, 26, -9, 26, -16, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sombra"]
+shape = SubResource("CircleShape2D_npc")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="."]
+
+[node name="ProgressLabel" type="Label" parent="CanvasLayer"]
+offset_left = 1040.0
+offset_top = 20.0
+offset_right = 1260.0
+offset_bottom = 46.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "Scrolls found: 0 / 3"
+horizontal_alignment = 2
+
+[node name="ToastLabel" type="Label" parent="CanvasLayer"]
+offset_left = 340.0
+offset_top = 40.0
+offset_right = 940.0
+offset_bottom = 70.0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
