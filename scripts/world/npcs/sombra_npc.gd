@@ -1,9 +1,6 @@
 extends "res://scripts/world/npc.gd"
-## The thief / boss. Won't engage until the player has picked up enough of
-## the ruins' scrolls (exposure to combat words before the fight).
+## The thief / boss. Talking to him starts the fight.
 ## Portrait poses: sombra (default), sombra_smug, sombra_angry.
-
-const SCROLLS_REQUIRED := 3
 
 const DIALOGUE := {
 	"start": {
@@ -31,18 +28,7 @@ const DIALOGUE := {
 		"on_enter": "start_boss_fight",
 		"next": "end",
 	},
-	"not_ready": {
-		"speaker": "You",
-		"portrait": "",
-		"text": "(Something tells you to look around the ruins first. Those old scrolls might help.)",
-		"next": "end",
-	},
 }
 
 func _get_dialogue_data() -> Dictionary:
 	return DIALOGUE
-
-func _get_start_node() -> String:
-	if int(GameState.flags.get("ruins_scrolls", 0)) >= SCROLLS_REQUIRED:
-		return "start"
-	return "not_ready"

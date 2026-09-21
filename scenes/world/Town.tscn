@@ -1,10 +1,11 @@
-[gd_scene load_steps=9 format=3 uid="uid://lz9q4m2n8k1p6"]
+[gd_scene load_steps=10 format=3 uid="uid://lz9q4m2n8k1p6"]
 
 [ext_resource type="Script" path="res://scripts/world/town.gd" id="1_town"]
 [ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
 [ext_resource type="Script" path="res://scripts/world/npcs/mira_npc.gd" id="3_mira"]
 [ext_resource type="Script" path="res://scripts/world/npcs/tomas_npc.gd" id="4_tomas"]
 [ext_resource type="Script" path="res://scripts/world/search_spot.gd" id="5_search"]
+[ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="6_pickup"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
 size = Vector2(28, 28)
@@ -78,19 +79,20 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.7)
 theme_override_font_sizes/font_size = 13
 text = "(the well)"
 
-[node name="SearchSpot1" type="Area2D" parent="."]
+[node name="CratesScroll" type="Area2D" parent="."]
 visible = false
 position = Vector2(650, 200)
 monitoring = false
-script = ExtResource("5_search")
-is_clue = false
-flavor_text = "Just some old crates."
+script = ExtResource("6_pickup")
+spell_id = "luz_curativa"
+flavor_text = "Tucked under a torn cloth in the crates is a scroll, warm to the touch. A healer's charm, maybe."
+reveal_group = "search_spots"
 
-[node name="Visual" type="Polygon2D" parent="SearchSpot1"]
+[node name="Visual" type="Polygon2D" parent="CratesScroll"]
 color = Color(0.6, 0.5, 0.35, 1)
 polygon = PackedVector2Array(-18, 14, -18, -10, 18, -10, 18, 14)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="SearchSpot1"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CratesScroll"]
 shape = SubResource("CircleShape2D_npc")
 
 [node name="SearchSpot2" type="Area2D" parent="."]
@@ -108,19 +110,20 @@ polygon = PackedVector2Array(-18, 14, -18, -10, 18, -10, 18, 14)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="SearchSpot2"]
 shape = SubResource("CircleShape2D_npc")
 
-[node name="SearchSpot3" type="Area2D" parent="."]
+[node name="CartScroll" type="Area2D" parent="."]
 visible = false
 position = Vector2(560, 480)
 monitoring = false
-script = ExtResource("5_search")
-is_clue = false
-flavor_text = "A cart, nothing unusual."
+script = ExtResource("6_pickup")
+spell_id = "furia"
+flavor_text = "Wedged under the cart's seat is a scroll marked with a clenched fist."
+reveal_group = "search_spots"
 
-[node name="Visual" type="Polygon2D" parent="SearchSpot3"]
+[node name="Visual" type="Polygon2D" parent="CartScroll"]
 color = Color(0.6, 0.5, 0.35, 1)
 polygon = PackedVector2Array(-18, 14, -18, -10, 18, -10, 18, 14)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="SearchSpot3"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CartScroll"]
 shape = SubResource("CircleShape2D_npc")
 
 [node name="RuinsExit" type="Area2D" parent="."]

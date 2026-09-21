@@ -28,13 +28,22 @@ func _on_item_collected(word_id: String) -> void:
 func _update_progress_label() -> void:
 	progress_label.text = "Items found: %d / %d" % [_items_collected, MIN_ITEMS_TO_PROCEED]
 
+## Why the player can't enter town yet, or "" if they can.
+func _entry_blocker() -> String:
+	if _items_collected < MIN_ITEMS_TO_PROCEED:
+		return "Find a few more things before heading into town."
+	if not SpellProgress.knows("bola_de_fuego"):
+		return "That glowing scroll near the wreck... you should look at it first."
+	return ""
+
 func _on_town_entrance_entered(body: Node) -> void:
 	if not body.is_in_group("player"):
 		return
-	if _items_collected >= MIN_ITEMS_TO_PROCEED:
+	var blocker := _entry_blocker()
+	if blocker == "":
 		get_tree().change_scene_to_file("res://scenes/world/Town.tscn")
 	else:
-		_show_toast("Find a few more things before heading into town.")
+		_show_toast(blocker)
 
 func _show_toast(text: String) -> void:
 	toast_label.text = text

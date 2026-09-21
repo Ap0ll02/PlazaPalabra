@@ -43,6 +43,7 @@ var is_open := false
 
 var _spell_id := ""
 var _mode := ""
+var _required := false
 var _plan: Array = []
 var _step := 0
 var _lesson_mistakes := 0
@@ -63,21 +64,25 @@ func _ready() -> void:
 
 # --- Entry points ----------------------------------------------------------
 
-func start_learn(spell_id: String) -> void:
+## `required` lessons hide the Quit button, so guaranteed spells can't be
+## skipped; optional ones can be quit and retried later.
+func start_learn(spell_id: String, required: bool = false) -> void:
 	if SpellProgress.knows(spell_id):
 		return
-	_begin(spell_id, "learn")
+	_begin(spell_id, "learn", required)
 
 func start_practice(spell_id: String) -> void:
 	if not SpellProgress.knows(spell_id):
 		return
-	_begin(spell_id, "practice")
+	_begin(spell_id, "practice", false)
 
-func _begin(spell_id: String, mode: String) -> void:
+func _begin(spell_id: String, mode: String, required: bool) -> void:
 	if is_open or not SpellBank.has_spell(spell_id):
 		return
 	_spell_id = spell_id
 	_mode = mode
+	_required = required
+	quit_button.visible = not required
 	var tier := SpellProgress.tier_index(spell_id) if mode == "practice" else 0
 	_plan = LessonPlan.build_plan(spell_id, mode, tier, _rng)
 	_step = 0
@@ -91,7 +96,9 @@ func _begin(spell_id: String, mode: String) -> void:
 		title_label.text = "Learning: %s" % spell.name_es
 	else:
 		title_label.text = "Practice: %s  (%s)" % [spell.name_es, SpellProgress.tier_name(spell_id)]
-	StudySession.log_event("lesson_started", {"spell_id": spell_id, "mode": mode, "tier": tier})
+	StudySession.log_event("lesson_started", {
+		"spell_id": spell_id, "mode": mode, "tier": tier, "required": required,
+	})
 	_run_exercise()
 
 # --- Flow ------------------------------------------------------------------

@@ -1,7 +1,8 @@
 extends "res://scripts/world/npc.gd"
 ## Quest 2's NPC: recognizes the note's handwriting and points the player
-## at the thief's hideout in the ruins. Also foreshadows that combat is
-## about speaking clearly. Branches on quest state via _get_start_node().
+## at the thief's hideout in the ruins, and teaches Rayo and Muro de Piedra
+## (Town runs the two lessons once this dialogue closes). Also foreshadows
+## that combat is about speaking clearly. Branches on quest state via _get_start_node().
 ## Portrait poses: tomas (default), tomas_thoughtful, tomas_serious.
 
 const DIALOGUE := {
@@ -18,13 +19,19 @@ const DIALOGUE := {
 	"warn": {
 		"text": "Are you sure you want to go after him?",
 		"choices": [
-			{"text": "I'll go to the ruins.", "next": "go"},
+			{"text": "I'll go to the ruins.", "next": "teach"},
 			{"text": "Is it dangerous?", "next": "danger"},
 		],
 	},
 	"danger": {
 		"portrait": "tomas_serious",
 		"text": "Sombra won't listen to mumbling. Speak clearly and put your words together well -- in the ruins, words are your best weapon.",
+		"next": "teach",
+	},
+	"teach": {
+		"portrait": "tomas",
+		"text": "Then you shouldn't go empty-handed. Let me teach you two spells -- listen closely.",
+		"on_enter": "teach_spells",
 		"next": "go",
 	},
 	"go": {
