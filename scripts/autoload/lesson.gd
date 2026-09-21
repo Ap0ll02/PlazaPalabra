@@ -21,6 +21,11 @@ const WRONG_COLOR := Color(0.78, 0.32, 0.32)
 const RIGHT_COLOR := Color(0.45, 0.8, 0.5)
 const MAX_TILE_CHECKS := 3
 const MAX_TYPED_TRIES := 2
+## Physical key -> option index, so 1-9 pick the first nine options and 0 the tenth.
+const DIGIT_KEYS := {
+	KEY_1: 0, KEY_2: 1, KEY_3: 2, KEY_4: 3, KEY_5: 4,
+	KEY_6: 5, KEY_7: 6, KEY_8: 7, KEY_9: 8, KEY_0: 9,
+}
 
 var is_open := false
 
@@ -34,6 +39,7 @@ var is_open := false
 @onready var feedback_label: Label = $Overlay/Center/FeedbackLabel
 @onready var continue_button: Button = $Overlay/Center/ContinueButton
 @onready var audio_player: AudioStreamPlayer = $AudioPlayer
+@onready var keys_hint: Label = $Overlay/KeysHint
 
 var _spell_id := ""
 var _mode := ""
@@ -45,6 +51,8 @@ var _tier_up_name := ""
 var _rng := RandomNumberGenerator.new()
 ## State of the exercise currently on screen.
 var _ex: Dictionary = {}
+## Option buttons on screen that number keys can press, in display order.
+var _hotkeys: Array = []
 
 func _ready() -> void:
 	_rng.randomize()
@@ -91,12 +99,16 @@ func _begin(spell_id: String, mode: String) -> void:
 func _run_exercise() -> void:
 	_clear_content()
 	_ex = {}
+	_hotkeys = []
 	_exercise_mistakes = 0
 	continue_button.visible = false
 	_set_feedback("")
 	step_label.text = "Step %d / %d" % [_step + 1, _plan.size()]
 
 	var spec: Dictionary = _plan[_step]
+	var typed: bool = spec.kind == "translate_type" or (spec.kind == "build" and spec.typed)
+	keys_hint.text = "Type your answer, then press Enter" if typed \
+		else "Number keys pick an option  -  Backspace undoes  -  Enter checks / continues"
 	match spec.kind:
 		"translate_tiles": _setup_translate_tiles()
 		"translate_type": _setup_translate_type(spec)
@@ -115,6 +127,9 @@ func _on_continue() -> void:
 
 func _exercise_complete(message: String) -> void:
 	_ex.complete = true
+	var focused := get_viewport().gui_get_focus_owner()
+	if focused is LineEdit:
+		focused.release_focus()
 	_set_feedback(message, RIGHT_COLOR)
 	continue_button.text = "Continue" if _step + 1 < _plan.size() else "Finish"
 	continue_button.visible = true
@@ -124,6 +139,7 @@ func _exercise_complete(message: String) -> void:
 
 func _finish() -> void:
 	_clear_content()
+	_hotkeys = []
 	var spell := SpellBank.get_spell(_spell_id)
 	if _mode == "learn":
 		SpellProgress.learn_spell(_spell_id)
@@ -156,6 +172,7 @@ func _close(completed: bool) -> void:
 	overlay.visible = false
 	audio_player.stop()
 	_clear_content()
+	_hotkeys = []
 	if completed:
 		lesson_finished.emit(_spell_id, _mode)
 
@@ -220,6 +237,7 @@ func _render_build() -> void:
 			_style_card(card, i == active_slot, CARD_EMPTY_TEXT)
 
 	var box: VBoxContainer = _ex.choices_box
+	_hotkeys = []
 	for child in box.get_children():
 		box.remove_child(child)
 		child.queue_free()
@@ -243,6 +261,7 @@ func _render_build() -> void:
 			_style_choice(b)
 			b.pressed.connect(_on_build_choice_pressed.bind(b))
 			row.add_child(b)
+			_register_hotkey(b)
 		box.add_child(row)
 
 func _add_build_typed_input(box: VBoxContainer, slot: Dictionary) -> void:
@@ -356,6 +375,7 @@ func _setup_translate_tiles() -> void:
 		_style_choice(tile)
 		tile.pressed.connect(_on_tile_pressed.bind(tile))
 		bank.add_child(tile)
+		_register_hotkey(tile)
 
 	var check := Button.new()
 	check.text = "Check"
@@ -492,6 +512,7 @@ func _setup_choice(spec: Dictionary) -> void:
 		_style_choice(b)
 		b.pressed.connect(_on_choice_pressed.bind(b))
 		row.add_child(b)
+		_register_hotkey(b)
 	content.add_child(row)
 
 func _on_choice_pressed(button: Button) -> void:
@@ -514,6 +535,58 @@ func _play_slot_audio(spanish: String) -> void:
 	if path != "":
 		audio_player.stream = load(path)
 		audio_player.play()
+
+# --- Keyboard ----------------------------------------------------------------
+
+## Registers `button` as the next number-key option and draws its number in
+## the top-left corner (1-9, then 0 for the tenth).
+func _register_hotkey(button: Button) -> void:
+	_hotkeys.append(button)
+	if _hotkeys.size() > DIGIT_KEYS.size():
+		return
+	var badge := Label.new()
+	badge.text = str(_hotkeys.size() % 10)
+	badge.position = Vector2(9, 3)
+	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	badge.add_theme_font_size_override("font_size", 13)
+	badge.add_theme_color_override("font_color", Color(1, 1, 1, 0.8))
+	button.add_child(badge)
+
+func _input(event: InputEvent) -> void:
+	if not is_open or not (event is InputEventKey and event.pressed and not event.echo):
+		return
+	# While typing an answer the keys belong to the text box.
+	if get_viewport().gui_get_focus_owner() is LineEdit:
+		return
+	var key: int = event.physical_keycode
+	if DIGIT_KEYS.has(key):
+		var i: int = DIGIT_KEYS[key]
+		if i < _hotkeys.size() and is_instance_valid(_hotkeys[i]) and not _hotkeys[i].disabled:
+			_hotkeys[i].pressed.emit()
+		get_viewport().set_input_as_handled()
+	elif key == KEY_BACKSPACE:
+		_keyboard_undo()
+		get_viewport().set_input_as_handled()
+	elif key == KEY_ENTER or key == KEY_KP_ENTER:
+		_keyboard_confirm()
+		get_viewport().set_input_as_handled()
+
+func _keyboard_undo() -> void:
+	if _ex.get("complete", true):
+		return
+	match _ex.get("kind", ""):
+		"build":
+			if _ex.pos > 0:
+				_on_build_card_pressed(_ex.spec.order[_ex.pos - 1])
+		"tiles":
+			if not _ex.placed.is_empty():
+				_ex.placed.back().pressed.emit()
+
+func _keyboard_confirm() -> void:
+	if continue_button.visible:
+		continue_button.pressed.emit()
+	elif _ex.get("kind", "") == "tiles" and not _ex.complete:
+		_on_tiles_check()
 
 # --- Shared helpers --------------------------------------------------------
 

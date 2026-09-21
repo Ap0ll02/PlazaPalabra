@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://d8k3m6w2n9p4r"]
+[gd_scene load_steps=2 format=3 uid="uid://d57140s32ud0"]
 
 [ext_resource type="Script" path="res://scripts/autoload/lesson.gd" id="1_lesson"]
 
@@ -110,5 +110,22 @@ custom_minimum_size = Vector2(220, 52)
 layout_mode = 2
 size_flags_horizontal = 4
 text = "Continue"
+
+[node name="KeysHint" type="Label" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 7
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -420.0
+offset_top = -44.0
+offset_right = 420.0
+offset_bottom = -14.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(1, 1, 1, 0.45)
+horizontal_alignment = 1
 
 [node name="AudioPlayer" type="AudioStreamPlayer" parent="."]
