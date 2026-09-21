@@ -123,8 +123,11 @@ func _show_details(spell_id: String) -> void:
 
 	var spell := SpellBank.get_spell(spell_id)
 	var color := SpellBank.type_color(spell_id)
-	name_label.text = spell.name
-	type_label.text = "%s  -  %s" % [SpellBank.TYPE_LABELS[spell.type], SpellBank.effect_text(spell_id)]
+	name_label.text = "%s  (%s)" % [spell.name_es, spell.name]
+	type_label.text = "%s, %s  -  %s" % [
+		SpellBank.TYPE_LABELS[spell.type], SpellBank.TARGET_LABELS[spell.target],
+		SpellBank.effect_text(spell_id),
+	]
 	type_label.add_theme_color_override("font_color", color)
 	sentence_es_label.text = spell.sentence_es
 	sentence_en_label.text = spell.sentence_en
@@ -135,6 +138,8 @@ func _show_details(spell_id: String) -> void:
 	stats_label.text = "Mana cost: %d\nAccuracy by correct answers (0 to 3): %s\nLoadout copies: %d" % [
 		spell.mana_cost, "  ->  ".join(accuracies), SpellProgress.max_copies(spell_id),
 	]
+	if SpellBank.has_combined(spell_id):
+		stats_label.text += "\nAfter Furia: %s" % spell.combined.sentence_es
 
 	var count := SpellProgress.practice_count(spell_id)
 	var next := SpellProgress.next_tier_threshold(spell_id)

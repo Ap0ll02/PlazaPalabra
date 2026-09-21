@@ -56,33 +56,61 @@ var _words: Dictionary = {
 		"spanish": "nota", "english": "note", "role": "noun",
 		"example_es": "Encuentro una nota.", "example_en": "I find a note.",
 	},
+	"ustedes": {
+		"spanish": "ustedes", "english": "you all", "role": "pronoun",
+		"example_es": "Ustedes sienten frío.", "example_en": "You all feel cold.",
+	},
+	"sentir": {
+		"spanish": "sentir", "english": "to feel", "role": "verb",
+		"example_es": "Ustedes sienten frío.", "example_en": "You all feel cold.",
+	},
+	"frio": {
+		"spanish": "frío", "english": "cold", "role": "noun",
+		"example_es": "Ustedes sienten frío.", "example_en": "You all feel cold.",
+	},
+	"bola_fuego": {
+		"spanish": "bola de fuego", "english": "fireball", "role": "noun",
+		"example_es": "Yo lanzo una bola de fuego.", "example_en": "I throw a fireball.",
+	},
+	"rayo": {
+		"spanish": "rayo", "english": "lightning bolt", "role": "noun",
+		"example_es": "Yo disparo un rayo.", "example_en": "I shoot a lightning bolt.",
+	},
+	"ganar": {
+		"spanish": "ganar", "english": "to gain", "role": "verb",
+		"example_es": "Yo gano fuerza.", "example_en": "I gain strength.",
+	},
+	"fuerza": {
+		"spanish": "fuerza", "english": "strength", "role": "noun",
+		"example_es": "Yo gano fuerza.", "example_en": "I gain strength.",
+	},
+	"me": {
+		"spanish": "me", "english": "myself", "role": "pronoun",
+		"example_es": "Yo me sano.", "example_en": "I heal myself.",
+	},
+	"sanar": {
+		"spanish": "sanar", "english": "to heal", "role": "verb",
+		"example_es": "Yo me sano.", "example_en": "I heal myself.",
+	},
+	"proteger": {
+		"spanish": "proteger", "english": "to protect", "role": "verb",
+		"example_es": "Yo me protejo.", "example_en": "I protect myself.",
+	},
+	"con_fuerza": {
+		"spanish": "con fuerza", "english": "with force", "role": "phrase",
+		"example_es": "Yo lanzo una bola de fuego con fuerza.", "example_en": "I throw a fireball with force.",
+	},
+	"hielo_golpea": {
+		"spanish": "y el hielo los golpea", "english": "and the ice hits them", "role": "phrase",
+		"example_es": "Ustedes sienten frío y el hielo los golpea.", "example_en": "You all feel cold and the ice hits you.",
+	},
 	"yo": {
 		"spanish": "yo", "english": "I", "role": "pronoun",
-		"example_es": "Yo lanzo una roca.", "example_en": "I throw a rock.",
+		"example_es": "Yo lanzo una bola de fuego.", "example_en": "I throw a fireball.",
 	},
 	"disparar": {
 		"spanish": "disparar", "english": "to shoot", "role": "verb",
-		"example_es": "Yo disparo una flecha.", "example_en": "I shoot an arrow.",
-	},
-	"beber": {
-		"spanish": "beber", "english": "to drink", "role": "verb",
-		"example_es": "Yo bebo agua.", "example_en": "I drink water.",
-	},
-	"levantar": {
-		"spanish": "levantar", "english": "to raise", "role": "verb",
-		"example_es": "Yo levanto un escudo.", "example_en": "I raise a shield.",
-	},
-	"flecha": {
-		"spanish": "flecha", "english": "arrow", "role": "noun",
-		"example_es": "Yo disparo una flecha.", "example_en": "I shoot an arrow.",
-	},
-	"escudo": {
-		"spanish": "escudo", "english": "shield", "role": "noun",
-		"example_es": "Yo levanto un escudo.", "example_en": "I raise a shield.",
-	},
-	"pocion_fuerza": {
-		"spanish": "poción de fuerza", "english": "strength potion", "role": "noun",
-		"example_es": "Yo bebo una poción de fuerza.", "example_en": "I drink a strength potion.",
+		"example_es": "Yo disparo un rayo.", "example_en": "I shoot a lightning bolt.",
 	},
 	"sentirse_mejor": {
 		"spanish": "sentirme mejor", "english": "to feel better", "role": "heal",

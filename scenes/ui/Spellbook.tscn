@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://c7w2n5k9m3x4q"]
+[gd_scene load_steps=2 format=3 uid="uid://c7w2n5lam3x4q"]
 
 [ext_resource type="Script" path="res://scripts/autoload/spellbook.gd" id="1_spellbook"]
 
