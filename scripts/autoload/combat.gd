@@ -26,6 +26,9 @@ const DIGIT_KEYS := {
 const RIGHT_COLOR := Color(0.45, 0.8, 0.5)
 const WRONG_COLOR := Color(0.85, 0.4, 0.4)
 const OPTION_COLOR := Color(0.24, 0.55, 0.72)
+const ENEMY_HP_COLOR := Color(0.85, 0.36, 0.36)
+const PLAYER_HP_COLOR := Color(0.36, 0.76, 0.46)
+const MANA_COLOR := Color(0.36, 0.56, 0.95)
 
 enum Phase { NONE, MENU, TARGET, QUIZ, RESULT, ENEMY, OVER }
 
@@ -72,9 +75,12 @@ var _q_hinted := false
 var _eliminated: Array = []
 var _answered := false
 var _enemy_queue: Array = []
+var _first_refresh := true
+var _last_hp: Dictionary = {}
 
 func _ready() -> void:
 	_rng.randomize()
+	_apply_style()
 	hint_button.pressed.connect(_on_hint_pressed)
 	back_button.pressed.connect(_show_menu)
 	next_button.pressed.connect(_on_next_pressed)
@@ -97,6 +103,8 @@ func start(encounter_id: String) -> void:
 	_encounter_id = encounter_id
 	state = CombatState.new(enc, _rng, GameState.MAX_HP)
 	GameState.hp = state.player_hp
+	_first_refresh = true
+	_last_hp = {}
 	is_open = true
 	Fx.fade_in(overlay)
 	title_label.text = enc.title
@@ -433,20 +441,132 @@ func _build_enemies() -> void:
 		figure.position = Vector2(100, 100)
 		b.add_child(figure)
 
-		var name_label := _label(e.name, 18, Vector2(0, 176), 200)
+		var shadow := _shadow(Vector2(100, 160), 46)
+		b.add_child(shadow)
+		b.move_child(shadow, 0)
+
+		var name_label := _label(e.name, 18, Vector2(0, 172), 200)
 		var bar := ProgressBar.new()
-		bar.position = Vector2(10, 208)
-		bar.size = Vector2(180, 16)
+		bar.position = Vector2(10, 204)
+		bar.size = Vector2(180, 22)
 		bar.show_percentage = false
 		bar.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		bar.max_value = e.max_hp
-		var hp := _label("", 14, Vector2(0, 226), 200)
-		var tag := _label("", 14, Vector2(0, 246), 200)
+		_style_bar(bar, ENEMY_HP_COLOR)
+		var hp := _label("", 14, Vector2(10, 204), 180)
+		hp.size.y = 22
+		hp.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+		_outline(hp)
+		var tag := _label("", 14, Vector2(0, 232), 200)
 		tag.add_theme_color_override("font_color", Color(0.6, 0.8, 1))
 		for node in [name_label, bar, hp, tag]:
 			b.add_child(node)
 		enemy_row.add_child(b)
 		_enemy_ui.append({"button": b, "bar": bar, "hp": hp, "tag": tag, "figure": figure})
+
+# --- Look ---------------------------------------------------------------------------
+
+func _box(color: Color, radius: int = 10, border: int = 0, border_color: Color = Color.WHITE) -> StyleBoxFlat:
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = color
+	sb.set_corner_radius_all(radius)
+	if border > 0:
+		sb.set_border_width_all(border)
+		sb.border_color = border_color
+	return sb
+
+func _style_bar(bar: ProgressBar, fill: Color) -> void:
+	bar.add_theme_stylebox_override("background", _box(Color(0, 0, 0, 0.5), 8, 2, Color(1, 1, 1, 0.14)))
+	bar.add_theme_stylebox_override("fill", _box(fill, 8))
+
+func _outline(label: Label) -> void:
+	label.add_theme_constant_override("outline_size", 4)
+	label.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.7))
+
+## Eases a bar to its new value (or jumps if not animating).
+func _set_bar(bar: ProgressBar, max_value: float, value: float, animate: bool) -> void:
+	bar.max_value = max_value
+	if bar.has_meta("fx"):
+		var old = bar.get_meta("fx")
+		if old is Tween and old.is_valid():
+			old.kill()
+	if not animate:
+		bar.value = value
+		return
+	var t := bar.create_tween()
+	t.tween_property(bar, "value", value, 0.35).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	bar.set_meta("fx", t)
+
+## A soft ground shadow under a fighter.
+func _shadow(center: Vector2, radius: float) -> Polygon2D:
+	var poly := Polygon2D.new()
+	var points := PackedVector2Array()
+	for i in 28:
+		var a := TAU * i / 28.0
+		points.append(Vector2(cos(a) * radius, sin(a) * radius * 0.28))
+	poly.polygon = points
+	poly.color = Color(0, 0, 0, 0.3)
+	poly.position = center
+	return poly
+
+## Flashes a figure red when its HP went down since the last refresh.
+func _flash_if_hurt(key, hp: int, figure: CanvasItem) -> void:
+	if _last_hp.has(key) and hp < _last_hp[key] and is_instance_valid(figure):
+		var t := figure.create_tween()
+		figure.modulate = Color(2.2, 0.5, 0.5)
+		t.tween_property(figure, "modulate", Color.WHITE, 0.4)
+	_last_hp[key] = hp
+
+## One-time styling of the scene's static pieces (bars, panels, backdrop).
+func _apply_style() -> void:
+	var grad := Gradient.new()
+	grad.set_color(0, Color(0.17, 0.2, 0.32))
+	grad.set_color(1, Color(0.08, 0.09, 0.15))
+	var tex := GradientTexture2D.new()
+	tex.gradient = grad
+	tex.fill_from = Vector2(0, 0)
+	tex.fill_to = Vector2(0, 1)
+	tex.width = 8
+	tex.height = 256
+	var sky := TextureRect.new()
+	sky.texture = tex
+	sky.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+	sky.stretch_mode = TextureRect.STRETCH_SCALE
+	sky.set_anchors_preset(Control.PRESET_FULL_RECT)
+	sky.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	overlay.add_child(sky)
+	overlay.move_child(sky, 1)
+	$Overlay/Backdrop.visible = false
+
+	var ground: ColorRect = $Overlay/Ground
+	ground.color = Color(0.12, 0.13, 0.19)
+	var edge := ColorRect.new()
+	edge.color = Color(1, 1, 1, 0.08)
+	edge.size = Vector2(1280, 2)
+	ground.add_child(edge)
+
+	var pill := _box(Color(0, 0, 0, 0.35), 16)
+	pill.content_margin_top = 3
+	pill.content_margin_bottom = 3
+	turn_label.add_theme_stylebox_override("normal", pill)
+	turn_label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
+	title_label.add_theme_font_size_override("font_size", 28)
+	_outline(title_label)
+
+	var panel: Panel = $Overlay/ActionPanel
+	panel.add_theme_stylebox_override("panel", _box(Color(0.1, 0.11, 0.16, 0.97), 18, 2, Color(0.4, 0.5, 0.75, 0.35)))
+
+	_style_bar(hp_bar, PLAYER_HP_COLOR)
+	_style_bar(mana_bar, MANA_COLOR)
+	for l in [hp_label, mana_label]:
+		_outline(l)
+	var player_shadow := _shadow($Overlay/PlayerBox/Figure.position + Vector2(0, 52), 46)
+	$Overlay/PlayerBox.add_child(player_shadow)
+	$Overlay/PlayerBox.move_child(player_shadow, 0)
+
+	_style_option(hint_button, Color(0.3, 0.32, 0.42))
+	_style_option(back_button, Color(0.3, 0.32, 0.42))
+	_style_option(next_button, OPTION_COLOR)
 
 func _label(text: String, size: int, pos: Vector2, width: float) -> Label:
 	var l := Label.new()
@@ -459,12 +579,12 @@ func _label(text: String, size: int, pos: Vector2, width: float) -> Label:
 	return l
 
 func _refresh_all() -> void:
-	hp_bar.max_value = state.player_max_hp
-	hp_bar.value = state.player_hp
+	var animate := not _first_refresh
+	_set_bar(hp_bar, state.player_max_hp, state.player_hp, animate)
 	hp_label.text = "HP %d / %d" % [state.player_hp, state.player_max_hp]
-	mana_bar.max_value = Config.MANA_MAX
-	mana_bar.value = maxi(0, state.mana - _pending_cost())
+	_flash_if_hurt("player", state.player_hp, $Overlay/PlayerBox/Figure)
 	var pending := _pending_cost()
+	_set_bar(mana_bar, Config.MANA_MAX, maxi(0, state.mana - pending), animate)
 	mana_label.text = "Mana %d / %d" % [state.mana, Config.MANA_MAX] if pending == 0 \
 		else "Mana %d / %d   (this cast: -%d)" % [state.mana, Config.MANA_MAX, pending]
 
@@ -478,10 +598,12 @@ func _refresh_all() -> void:
 	for i in _enemy_ui.size():
 		var e: Dictionary = state.enemies[i]
 		var ui: Dictionary = _enemy_ui[i]
-		ui.bar.value = e.hp
+		_set_bar(ui.bar, e.max_hp, e.hp, animate)
+		_flash_if_hurt(i, e.hp, ui.figure)
 		ui.hp.text = "HP %d / %d" % [e.hp, e.max_hp] if e.hp > 0 else "Defeated"
 		ui.tag.text = "Shield %d" % e.shield if e.shield > 0 else ""
 		ui.button.modulate.a = 1.0 if e.hp > 0 else 0.3
+	_first_refresh = false
 
 func _show_text(label: Label, text: String) -> void:
 	Fx.fade_text(label, text)
@@ -515,17 +637,17 @@ func _add_option(text: String, color: Color, height: float) -> Button:
 	return b
 
 func _style_option(button: Button, color: Color) -> void:
-	var normal := StyleBoxFlat.new()
-	normal.bg_color = color
-	normal.set_corner_radius_all(10)
-	normal.set_content_margin_all(8)
-	var dim := StyleBoxFlat.new()
-	dim.bg_color = color.darkened(0.35)
-	dim.set_corner_radius_all(10)
-	dim.set_content_margin_all(8)
-	for s in ["normal", "hover", "pressed"]:
-		button.add_theme_stylebox_override(s, normal)
+	var normal := _box(color, 12, 2, color.lightened(0.25))
+	var hover := _box(color.lightened(0.14), 12, 2, color.lightened(0.5))
+	var pressed := _box(color.darkened(0.15), 12, 2, color.lightened(0.25))
+	var dim := _box(color.darkened(0.4), 12, 2, color.darkened(0.2))
+	for st in [normal, hover, pressed, dim]:
+		st.set_content_margin_all(8)
+	button.add_theme_stylebox_override("normal", normal)
+	button.add_theme_stylebox_override("hover", hover)
+	button.add_theme_stylebox_override("pressed", pressed)
 	button.add_theme_stylebox_override("disabled", dim)
+	button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	for c in ["font_color", "font_hover_color", "font_pressed_color"]:
 		button.add_theme_color_override(c, Color.WHITE)
 	button.add_theme_color_override("font_disabled_color", Color(1, 1, 1, 0.55))
@@ -541,10 +663,14 @@ func _register_hotkey(button: Button, is_target: bool) -> void:
 		return
 	var badge := Label.new()
 	badge.text = str(_hotkeys.size() % 10)
-	badge.position = Vector2(9, 3)
+	badge.position = Vector2(8, 8)
+	badge.custom_minimum_size = Vector2(22, 22)
+	badge.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	badge.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	badge.add_theme_font_size_override("font_size", 14)
-	badge.add_theme_color_override("font_color", Color(1, 1, 1, 0.85))
+	badge.add_theme_color_override("font_color", Color(1, 1, 1, 0.9))
+	badge.add_theme_stylebox_override("normal", _box(Color(0, 0, 0, 0.35), 6))
 	button.add_child(badge)
 	if is_target:
 		_target_badges.append(badge)
