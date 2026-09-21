@@ -23,6 +23,7 @@ func _ready() -> void:
 	Dialogue.dialogue_ended.connect(_on_dialogue_ended)
 	Lesson.lesson_finished.connect(_on_lesson_finished)
 	ruins_exit.body_entered.connect(_on_ruins_exit_entered)
+	dev_continue_button.visible = OS.is_debug_build()   # hidden in study (release) builds
 	dev_continue_button.pressed.connect(_on_dev_continue_pressed)
 
 func _on_dialogue_action(action: String) -> void:

@@ -25,6 +25,7 @@ func _get_config() -> Dictionary:
 
 func _ready() -> void:
 	super._ready()
+	dev_skip_button.visible = OS.is_debug_build()   # hidden in study (release) builds
 	dev_skip_button.pressed.connect(_on_dev_skip_pressed)
 
 func _on_dev_skip_pressed() -> void:

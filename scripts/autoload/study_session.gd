@@ -98,6 +98,12 @@ func assign_recap_arms() -> void:
 		"arm": recap_arm,
 		"never_missed": recap_never_missed,
 	})
+	var recap_rows: Array = []
+	for id in recap_arm:
+		recap_rows.append([id, recap_arm[id], int(prior_word_stats.get(id, {}).get("errors", 0))])
+	for id in recap_never_missed:
+		recap_rows.append([id, "never_missed", 0])
+	save_table("recap_assignment.csv", ["word_id", "arm", "week1_errors"], recap_rows)
 	log_event("recap_assigned", {
 		"missed": missed.size(),
 		"emphasized": recap_arm.values().count("emphasized"),
@@ -159,6 +165,48 @@ func log_event(event_type: String, payload: Dictionary = {}) -> void:
 		"data": payload,
 	}
 	_append_line(_data_dir.path_join("events.jsonl"), JSON.stringify(entry))
+	var path := _data_dir.path_join("events.csv")
+	if not FileAccess.file_exists(path):
+		_append_line(path, csv_line(EVENT_COLUMNS))
+	_append_line(path, csv_line([
+		session_id, participant_code, visit_number, entry.t_msec, event_type,
+		payload.get("word_id", ""), payload.get("spell_id", ""), payload.get("correct", ""),
+		payload.get("kind", ""), JSON.stringify(payload),
+	]))
+
+# --- CSV output --------------------------------------------------------------
+# Every table is a plain CSV (UTF-8, comma separated, quoted where needed) so
+# it opens directly in Excel / LibreOffice and loads in pandas or R. Each row
+# starts with session_id, participant_code, visit so files from many
+# sessions can be stacked (tools/aggregate_study_data.py does that).
+
+const EVENT_COLUMNS := [
+	"session_id", "participant_code", "visit", "t_msec", "event",
+	"word_id", "spell_id", "correct", "kind", "detail_json",
+]
+const KEY_COLUMNS := ["session_id", "participant_code", "visit"]
+
+static func csv_field(value) -> String:
+	var text := str(value)
+	if text.contains(",") or text.contains("\"") or text.contains("\n") or text.contains("\r"):
+		return "\"" + text.replace("\"", "\"\"") + "\""
+	return text
+
+static func csv_line(values: Array) -> String:
+	return ",".join(values.map(func(v): return csv_field(v)))
+
+## Writes a whole table. `headers` should NOT include the key columns; they
+## are added to every row. `rows` is an Array of Arrays matching `headers`.
+func save_table(filename: String, headers: Array, rows: Array) -> void:
+	if _data_dir == "":
+		return
+	var f := FileAccess.open(_data_dir.path_join(filename), FileAccess.WRITE)
+	if not f:
+		return
+	f.store_line(csv_line(KEY_COLUMNS + headers))
+	for row in rows:
+		f.store_line(csv_line([session_id, participant_code, visit_number] + row))
+	f.close()
 
 func save_json(filename: String, data: Dictionary) -> void:
 	if _data_dir == "":
@@ -169,6 +217,7 @@ func save_json(filename: String, data: Dictionary) -> void:
 		f.close()
 
 func write_session_summary() -> void:
+	_write_summary_tables()
 	var word_stats := {}
 	for id in WordBank.all_word_ids():
 		if PlayerProfile.has_seen(id):
@@ -185,6 +234,34 @@ func write_session_summary() -> void:
 		"recap_arm": recap_arm,
 		"duration_msec": Time.get_ticks_msec() - _session_start_msec,
 	})
+
+func _write_summary_tables() -> void:
+	var word_rows: Array = []
+	for id in WordBank.all_word_ids():
+		if not PlayerProfile.has_seen(id):
+			continue
+		var st: Dictionary = PlayerProfile.get_stats(id)
+		var word: Dictionary = WordBank.get_word(id)
+		word_rows.append([
+			id, word.spanish, word.english, st.seen, st.correct, st.errors, st.hinted,
+			recap_arm.get(id, "never_missed" if id in recap_never_missed else ""),
+			int(prior_word_stats.get(id, {}).get("errors", 0)),
+		])
+	save_table("word_stats.csv", [
+		"word_id", "spanish", "english", "seen", "correct", "errors", "hinted",
+		"recap_group", "week1_errors",
+	], word_rows)
+	var spell_rows: Array = []
+	var progress := SpellProgress.snapshot()
+	for id in progress:
+		spell_rows.append([id, progress[id].practice, progress[id].tier, progress[id].get("in_book", 0)])
+	save_table("spell_progress.csv", ["spell_id", "practice_count", "tier", "copies_in_book"], spell_rows)
+	save_table("session.csv", [
+		"quest_stage_reached", "final_hp", "duration_msec", "best_streak", "words_seen", "spells_known",
+	], [[
+		GameState.quest_stage, GameState.hp, Time.get_ticks_msec() - _session_start_msec,
+		Praise.best, word_rows.size(), progress.size(),
+	]])
 
 func get_data_dir() -> String:
 	return _data_dir

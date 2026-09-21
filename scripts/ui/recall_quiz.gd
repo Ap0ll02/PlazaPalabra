@@ -120,6 +120,11 @@ func _on_choice_pressed(index: int) -> void:
 		_show_question()
 
 func _finish() -> void:
+	var rows: Array = []
+	for r in _results:
+		rows.append([r.word_id, r.group, r.week1_errors, r.chosen, r.correct, r.is_review])
+	StudySession.save_table("recall_quiz.csv",
+		["word_id", "group", "week1_errors", "chosen", "correct", "is_review"], rows)
 	StudySession.save_json("recall_quiz.json", {
 		"balanced_by_recap_arm": _balanced,
 		"total": _quiz_words.size(),
