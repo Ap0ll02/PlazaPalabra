@@ -76,11 +76,23 @@ const EXTRA_DISTRACTORS := {
 	"reflexive": [{"es": "nos", "en": "ourselves"}],
 }
 
+# --- Word order ---------------------------------------------------------
+## Each spell has an "order_foil": a plausible wrong ordering (what an English
+## speaker might write) and an "order_pattern" that names the rule it breaks.
+## The pattern's note is shown after the second miss of that pattern.
+
+const WORD_ORDER_NOTES := {
+	"pronoun_before_verb": "In Spanish, the pronoun (me, te, los...) goes BEFORE the verb: \"me protejo\", not \"protejo me\".",
+	"verb_before_object": "Spanish keeps the verb before what it acts on: verb first, then the object.",
+	"noun_before_de_noun": "Spanish names the thing first: \"bola de fuego\" (ball of fire), not \"fire ball\".",
+}
+
 # --- Spells -------------------------------------------------------------
 # "source" records where the player learns it (data only, for now).
 
 const SPELLS := {
 	"bola_de_fuego": {
+		"order_foil": "Yo lanzo una fuego bola", "order_pattern": "noun_before_de_noun",
 		"name": "Fireball", "name_es": "Bola de Fuego",
 		"type": "attack", "target": "single", "source": "tutorial",
 		"sentence_es": "Yo lanzo una bola de fuego", "sentence_en": "I throw a fireball",
@@ -102,6 +114,7 @@ const SPELLS := {
 		},
 	},
 	"rayo": {
+		"order_foil": "Yo un rayo disparo", "order_pattern": "verb_before_object",
 		"name": "Lightning Bolt", "name_es": "Rayo",
 		"type": "attack", "target": "single", "source": "tomas",
 		"sentence_es": "Yo disparo un rayo", "sentence_en": "I shoot a lightning bolt",
@@ -123,6 +136,7 @@ const SPELLS := {
 		},
 	},
 	"tormenta_de_hielo": {
+		"order_foil": "Ustedes frío sienten", "order_pattern": "verb_before_object",
 		"name": "Ice Storm", "name_es": "Tormenta de Hielo",
 		"type": "attack", "target": "all", "source": "ruins",
 		"sentence_es": "Ustedes sienten frío", "sentence_en": "You all feel cold",
@@ -153,6 +167,7 @@ const SPELLS := {
 		},
 	},
 	"furia": {
+		"order_foil": "Yo fuerza gano", "order_pattern": "verb_before_object",
 		"name": "Fury", "name_es": "Furia",
 		"type": "buff", "target": "self", "source": "quest_1",
 		"sentence_es": "Yo gano fuerza", "sentence_en": "I gain strength",
@@ -169,6 +184,7 @@ const SPELLS := {
 		],
 	},
 	"luz_curativa": {
+		"order_foil": "Yo sano me", "order_pattern": "pronoun_before_verb",
 		"name": "Healing Light", "name_es": "Luz Curativa",
 		"type": "heal", "target": "self", "source": "quest_1",
 		"sentence_es": "Yo me sano", "sentence_en": "I heal myself",
@@ -185,6 +201,7 @@ const SPELLS := {
 		],
 	},
 	"muro_de_piedra": {
+		"order_foil": "Yo protejo me", "order_pattern": "pronoun_before_verb",
 		"name": "Stone Wall", "name_es": "Muro de Piedra",
 		"type": "shield", "target": "self", "source": "tomas",
 		"sentence_es": "Yo me protejo", "sentence_en": "I protect myself",

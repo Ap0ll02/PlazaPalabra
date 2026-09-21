@@ -280,6 +280,12 @@ func _show_details(spell_id: String) -> void:
 	]
 	if SpellBank.has_combined(spell_id):
 		stats_label.text += "\nAfter Furia: %s" % spell.combined.sentence_es
+	var trouble: Array = []
+	for slot in spell.slots:
+		if PlayerProfile.weakness(slot.word_id) >= 1.0:
+			trouble.append("%s (missed %d)" % [slot.es, PlayerProfile.get_stats(slot.word_id).errors])
+	if not trouble.is_empty():
+		stats_label.text += "\nWords to review: " + ", ".join(trouble)
 
 	var count := SpellProgress.practice_count(spell_id)
 	var next := SpellProgress.next_tier_threshold(spell_id)

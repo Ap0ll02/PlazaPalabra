@@ -7,7 +7,7 @@ const FREE_HINT_ALLOWANCE := 2
 const HINT_PENALTY := 0.10
 const MASTERY_UNHINTED_STREAK := 2
 
-## word_id -> { seen: int, hinted: int, correct: int, unhinted_streak: int }
+## word_id -> { seen, hinted, correct, unhinted_streak, errors, confused: {wrong_answer: count} }
 var _word_stats: Dictionary = {}
 
 func _stat(word_id: String) -> Dictionary:
@@ -17,6 +17,8 @@ func _stat(word_id: String) -> Dictionary:
 			"hinted": 0,
 			"correct": 0,
 			"unhinted_streak": 0,
+			"errors": 0,
+			"confused": {},
 		}
 	return _word_stats[word_id]
 
@@ -61,3 +63,44 @@ func get_stats(word_id: String) -> Dictionary:
 
 func has_seen(word_id: String) -> bool:
 	return _word_stats.has(word_id) and _word_stats[word_id].seen > 0
+
+# --- Errors, weak spots and word-order patterns ------------------------------------
+
+## word_id -> pattern misses (e.g. "pronoun_before_verb" -> 2)
+var _pattern_misses: Dictionary = {}
+
+## Call on a wrong answer. `chosen` is what the player picked/typed (may be "").
+func record_error(word_id: String, chosen: String = "") -> void:
+	if word_id == "":
+		return
+	var stat := _stat(word_id)
+	stat.errors += 1
+	stat.unhinted_streak = 0
+	if chosen != "":
+		stat.confused[chosen] = stat.confused.get(chosen, 0) + 1
+	StudySession.log_event("word_error", {"word_id": word_id, "chosen": chosen, "errors": stat.errors})
+
+## How much this word needs review: misses, eased by recent clean answers.
+func weakness(word_id: String) -> float:
+	if not _word_stats.has(word_id):
+		return 0.0
+	var stat: Dictionary = _word_stats[word_id]
+	return maxf(0.0, stat.errors - 0.5 * stat.unhinted_streak)
+
+## Wrong answers previously chosen for this word, most frequent first.
+func confused_answers(word_id: String) -> Array:
+	if not _word_stats.has(word_id):
+		return []
+	var confused: Dictionary = _word_stats[word_id].confused
+	var keys: Array = confused.keys()
+	keys.sort_custom(func(a, b): return confused[a] > confused[b])
+	return keys
+
+## Returns how many times this word-order pattern has now been missed.
+func record_pattern_miss(pattern: String) -> int:
+	_pattern_misses[pattern] = _pattern_misses.get(pattern, 0) + 1
+	StudySession.log_event("pattern_miss", {"pattern": pattern, "count": _pattern_misses[pattern]})
+	return _pattern_misses[pattern]
+
+func pattern_misses(pattern: String) -> int:
+	return _pattern_misses.get(pattern, 0)

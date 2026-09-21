@@ -20,7 +20,9 @@ const CHOICE_COLOR := Color(0.24, 0.55, 0.72)
 const WRONG_COLOR := Color(0.78, 0.32, 0.32)
 const RIGHT_COLOR := Color(0.45, 0.8, 0.5)
 const MAX_TILE_CHECKS := 3
-const MAX_TYPED_TRIES := 2
+const MAX_TYPED_TRIES := 3   # the third miss reveals the answer
+const HINT_COLOR := Color(0.95, 0.8, 0.45)
+const HintLadder := preload("res://scripts/lesson/hint_ladder.gd")
 ## Physical key -> option index, so 1-9 pick the first nine options and 0 the tenth.
 const DIGIT_KEYS := {
 	KEY_1: 0, KEY_2: 1, KEY_3: 2, KEY_4: 3, KEY_5: 4,
@@ -48,6 +50,7 @@ var _required := false
 var _plan: Array = []
 var _step := 0
 var _lesson_mistakes := 0
+var _ex_started_msec := 0
 var _exercise_mistakes := 0
 var _tier_up_name := ""
 var _rng := RandomNumberGenerator.new()
@@ -109,11 +112,14 @@ func _run_exercise() -> void:
 	_ex = {}
 	_hotkeys = []
 	_exercise_mistakes = 0
+	_ex_started_msec = Time.get_ticks_msec()
 	continue_button.visible = false
 	_set_feedback("")
 	step_label.text = "Step %d / %d" % [_step + 1, _plan.size()]
 
 	var spec: Dictionary = _plan[_step]
+	if spec.kind in ["quiz", "fill_blank"]:
+		spec.slot = _weighted_slot(SpellBank.get_spell(_spell_id))
 	var typed: bool = spec.kind == "translate_type" or (spec.kind == "build" and spec.typed)
 	keys_hint.text = "Type your answer, then press Enter" if typed \
 		else "Number keys pick an option  -  Backspace undoes  -  Enter checks / continues"
@@ -122,6 +128,8 @@ func _run_exercise() -> void:
 		"translate_type": _setup_translate_type(spec)
 		"build": _setup_build(spec)
 		"quiz", "fill_blank", "listen_pick": _setup_choice(spec)
+		"tile_reorder": _setup_tile_reorder()
+		"contrast_pair": _setup_contrast_pair()
 
 func _on_continue() -> void:
 	if _ex.get("kind", "") == "done":
@@ -164,6 +172,12 @@ func _finish() -> void:
 		else:
 			_set_feedback("Mistakes this lesson: %d" % _lesson_mistakes, RIGHT_COLOR)
 	step_label.text = ""
+	if _mode == "learn":
+		Praise.celebrate("Spell learned!")
+	elif _tier_up_name != "":
+		Praise.celebrate("%s!" % _tier_up_name)
+	elif _lesson_mistakes == 0:
+		Praise.celebrate("Flawless!")
 	continue_button.text = "Done"
 	continue_button.visible = true
 	_ex = {"kind": "done"}
@@ -187,10 +201,60 @@ func _close(completed: bool) -> void:
 func _on_tier_up(_spell_id_arg: String, tier_name: String) -> void:
 	_tier_up_name = tier_name
 
-func _mistake(word_id: String) -> void:
+func _mistake(word_id: String, chosen: String = "") -> void:
 	_lesson_mistakes += 1
 	_exercise_mistakes += 1
-	StudySession.log_event("lesson_wrong", {"spell_id": _spell_id, "kind": _ex.get("kind", ""), "word_id": word_id})
+	PlayerProfile.record_error(word_id, chosen)
+	Praise.wrong()
+	StudySession.log_event("lesson_wrong", {
+		"spell_id": _spell_id, "kind": _ex.get("kind", ""), "word_id": word_id,
+		"latency_ms": Time.get_ticks_msec() - _ex_started_msec,
+	})
+
+func _log_hints(rungs: Array, word_id: String) -> void:
+	for rung in rungs:
+		StudySession.log_event("lesson_hint", {
+			"spell_id": _spell_id, "kind": _ex.get("kind", ""), "word_id": word_id, "rung": rung,
+		})
+
+## Slot to quiz: random, but weighted toward words the player has missed.
+func _weighted_slot(spell: Dictionary) -> int:
+	var weights: Array = []
+	var total := 0.0
+	for slot in spell.slots:
+		var w: float = 1.0 + 2.0 * PlayerProfile.weakness(slot.word_id)
+		weights.append(w)
+		total += w
+	var roll := _rng.randf() * total
+	for i in weights.size():
+		roll -= weights[i]
+		if roll <= 0.0:
+			return i
+	return weights.size() - 1
+
+## After a wrong pick among choices: the next rung of the ladder. The second
+## rung also takes one remaining wrong option away.
+func _choice_hint(spell: Dictionary, slot_i: int, miss: int) -> void:
+	var slot: Dictionary = spell.slots[slot_i]
+	var h := HintLadder.slot_hint(spell, slot_i, miss, false)
+	var text: String = "Not quite. " + h.text
+	if "drop_option" in h.rungs:
+		var wrong: Array = _hotkeys.filter(func(b): return is_instance_valid(b) and not b.disabled and b.text != slot.es)
+		if wrong.size() >= 2:
+			var drop: Button = wrong[_rng.randi_range(0, wrong.size() - 1)]
+			drop.disabled = true
+			text += "   (One wrong option is gone.)"
+	_log_hints(h.rungs, slot.word_id)
+	_set_feedback(text, HINT_COLOR)
+
+## One line about the word-order rule, but only from the second miss of it.
+func _order_note(spell: Dictionary) -> String:
+	var pattern: String = spell.get("order_pattern", "")
+	if pattern == "":
+		return ""
+	var count := PlayerProfile.record_pattern_miss(pattern)
+	return "
+" + SpellBank.WORD_ORDER_NOTES[pattern] if count >= 2 else ""
 
 # --- Build exercise --------------------------------------------------------
 
@@ -301,13 +365,13 @@ func _on_build_choice_pressed(button: Button) -> void:
 		return
 	var slot: Dictionary = _current_build_slot()
 	if button.text == slot.es:
-		_set_feedback("")
+		_set_feedback("You worked it out!" if _ex.tries > 0 else "", RIGHT_COLOR)
 		_place_build(slot, true)
 	else:
 		_ex.tries += 1
 		_mark_wrong(button)
-		_mistake(slot.word_id)
-		_set_feedback("Not quite - try another.", WRONG_COLOR)
+		_mistake(slot.word_id, button.text)
+		_choice_hint(SpellBank.get_spell(_spell_id), _ex.spec.order[_ex.pos], _ex.tries - 1)
 
 func _on_build_typed_submitted(text: String, edit: LineEdit) -> void:
 	if _ex.get("kind", "") != "build" or _ex.complete:
@@ -319,12 +383,14 @@ func _on_build_typed_submitted(text: String, edit: LineEdit) -> void:
 		_place_build(slot, true)
 		return
 	_ex.tries += 1
-	_mistake(slot.word_id)
+	_mistake(slot.word_id, text)
 	if _ex.tries >= MAX_TYPED_TRIES:
-		_set_feedback("It was \"%s\"." % slot.es, WRONG_COLOR)
+		_set_feedback("It was \"%s\" - you'll get it next time." % slot.es, HINT_COLOR)
 		_place_build(slot, false)
 	else:
-		_set_feedback("Not quite - try again.", WRONG_COLOR)
+		var h := HintLadder.slot_hint(SpellBank.get_spell(_spell_id), _ex.spec.order[_ex.pos], _ex.tries - 1, true)
+		_log_hints(h.rungs, slot.word_id)
+		_set_feedback("Not quite. " + h.text, HINT_COLOR)
 		edit.clear()
 		edit.grab_focus()
 
@@ -337,6 +403,7 @@ func _current_build_slot() -> Dictionary:
 func _place_build(slot: Dictionary, credit: bool) -> void:
 	if credit and _ex.tries == 0:
 		PlayerProfile.record_correct(slot.word_id, false)
+		Praise.correct()
 	var slot_i: int = _ex.spec.order[_ex.pos]
 	_ex.placed[slot_i] = slot.es
 	_ex.pos += 1
@@ -366,6 +433,9 @@ func _setup_translate_tiles() -> void:
 	tiles.append_array(decoys.slice(0, 3))
 	tiles.shuffle()
 
+	_tile_ui(tiles, "en")
+
+func _tile_ui(tiles: Array, mode: String) -> void:
 	var answer_row := HBoxContainer.new()
 	answer_row.alignment = BoxContainer.ALIGNMENT_CENTER
 	answer_row.custom_minimum_size = Vector2(0, 64)
@@ -393,7 +463,7 @@ func _setup_translate_tiles() -> void:
 	content.add_child(check)
 
 	_ex = {
-		"kind": "tiles", "answer_row": answer_row, "bank": bank, "check": check,
+		"kind": "tiles", "mode": mode, "answer_row": answer_row, "bank": bank, "check": check,
 		"placed": [], "wrong_checks": 0, "complete": false,
 	}
 
@@ -422,17 +492,26 @@ func _on_tiles_check() -> void:
 		return
 	var spell := SpellBank.get_spell(_spell_id)
 	var built := " ".join(_ex.placed.map(func(b): return b.text))
-	if TextGrader.grade(built, spell.accepted_en, false, false).correct:
-		_credit_sentence(spell)
-		_exercise_complete("Correct!  %s" % spell.sentence_en)
+	var reorder: bool = _ex.mode == "es_order"
+	var target: String = spell.sentence_es if reorder else spell.accepted_en[0]
+	var ok: bool = built.to_lower() == target.to_lower() if reorder \
+		else TextGrader.grade(built, spell.accepted_en, false, false).correct
+	if ok:
+		if _ex.wrong_checks == 0:
+			_credit_sentence(spell)
+			Praise.correct()
+		_exercise_complete(("Correct!  %s" if _ex.wrong_checks == 0 else "You worked it out!  %s") % target)
 		return
 	_ex.wrong_checks += 1
-	_mistake("")
+	_mistake("", built)
+	var note: String = _order_note(spell) if reorder else ""
 	if _ex.wrong_checks >= MAX_TILE_CHECKS:
-		_exercise_complete("The sentence is: %s" % spell.sentence_en)
-		_set_feedback("The sentence is: %s" % spell.sentence_en, WRONG_COLOR)
+		_exercise_complete("")
+		_set_feedback("The sentence is: %s%s" % [target, note], HINT_COLOR)
 	else:
-		_set_feedback("Not quite - rearrange the words and check again.", WRONG_COLOR)
+		var cue := HintLadder.sentence_cue(target, _ex.wrong_checks - 1)
+		_log_hints(["sentence_cue"], "")
+		_set_feedback("Not quite - rearrange and check again. %s%s" % [cue, note], HINT_COLOR)
 
 func _setup_translate_type(spec: Dictionary) -> void:
 	var spell := SpellBank.get_spell(_spell_id)
@@ -459,15 +538,17 @@ func _on_translate_submitted(text: String, edit: LineEdit) -> void:
 	if result.correct:
 		if _ex.tries == 0:
 			_credit_sentence(spell)
-		_exercise_complete(_nudge_text(result) if result.nudge != "" else "Correct!")
+			Praise.correct()
+		_exercise_complete(_nudge_text(result) if result.nudge != "" else ("Correct!" if _ex.tries == 0 else "You worked it out!"))
 		return
 	_ex.tries += 1
-	_mistake("")
+	_mistake("", text)
 	if _ex.tries >= MAX_TYPED_TRIES:
 		_exercise_complete("")
-		_set_feedback("The answer is: %s" % accepted[0], WRONG_COLOR)
+		_set_feedback("The answer is: %s" % accepted[0], HINT_COLOR)
 	else:
-		_set_feedback("Not quite - try again.", WRONG_COLOR)
+		_log_hints(["sentence_cue"], "")
+		_set_feedback("Not quite. %s" % HintLadder.sentence_cue(accepted[0], _ex.tries - 1), HINT_COLOR)
 		edit.clear()
 		edit.grab_focus()
 
@@ -531,18 +612,73 @@ func _on_choice_pressed(button: Button) -> void:
 	if button.text == slot.es:
 		if _ex.tries == 0:
 			PlayerProfile.record_correct(slot.word_id, false)
-		_exercise_complete("Correct!  %s = %s" % [slot.es, slot.en])
+			Praise.correct()
+		_exercise_complete("%s  %s = %s" % ["Correct!" if _ex.tries == 0 else "You worked it out!", slot.es, slot.en])
 	else:
 		_ex.tries += 1
 		_mark_wrong(button)
-		_mistake(slot.word_id)
-		_set_feedback("Not quite - try another.", WRONG_COLOR)
+		_mistake(slot.word_id, button.text)
+		_choice_hint(spell, _ex.slot_i, _ex.tries - 1)
 
 func _play_slot_audio(spanish: String) -> void:
 	var path := LessonPlan.audio_path(spanish)
 	if path != "":
 		audio_player.stream = load(path)
 		audio_player.play()
+
+# --- Word-order exercises ------------------------------------------------------
+
+func _setup_tile_reorder() -> void:
+	var spell := SpellBank.get_spell(_spell_id)
+	prompt_label.text = "Put the words in order"
+	guide_label.text = spell.sentence_en
+	for slot in spell.slots:
+		PlayerProfile.record_seen(slot.word_id)
+	var words: Array = Array(spell.sentence_es.split(" "))
+	var tiles: Array = words.duplicate()
+	for attempt in 20:
+		tiles.shuffle()
+		if tiles != words:
+			break
+	_tile_ui(tiles, "es_order")
+
+func _setup_contrast_pair() -> void:
+	var spell := SpellBank.get_spell(_spell_id)
+	prompt_label.text = "Which sentence is correct?"
+	guide_label.text = spell.sentence_en
+	for slot in spell.slots:
+		PlayerProfile.record_seen(slot.word_id)
+	_ex = {"kind": "contrast", "tries": 0, "complete": false}
+	var options: Array = [spell.sentence_es, spell.order_foil]
+	options.shuffle()
+	var row := HBoxContainer.new()
+	row.alignment = BoxContainer.ALIGNMENT_CENTER
+	row.add_theme_constant_override("separation", 18)
+	for option in options:
+		var b := Button.new()
+		b.text = option
+		b.custom_minimum_size = Vector2(340, 64)
+		_style_choice(b)
+		b.pressed.connect(_on_contrast_pressed.bind(b))
+		row.add_child(b)
+		_register_hotkey(b)
+	content.add_child(row)
+
+func _on_contrast_pressed(button: Button) -> void:
+	if _ex.get("kind", "") != "contrast" or _ex.complete:
+		return
+	var spell := SpellBank.get_spell(_spell_id)
+	if button.text == spell.sentence_es:
+		if _ex.tries == 0:
+			for slot in spell.slots:
+				PlayerProfile.record_correct(slot.word_id, false)
+			Praise.correct()
+		_exercise_complete("%s  %s" % ["Correct!" if _ex.tries == 0 else "You worked it out!", spell.sentence_es])
+		return
+	_ex.tries += 1
+	_mark_wrong(button)
+	_mistake("", button.text)
+	_set_feedback("Not quite - look at where each word goes.%s" % _order_note(spell), HINT_COLOR)
 
 # --- Keyboard ----------------------------------------------------------------
 
@@ -616,6 +752,11 @@ func _choice_options(spell: Dictionary, slot_i: int, count: int) -> Array:
 			if not options.has(extra.es) and not pool.has(extra.es):
 				pool.append(extra.es)
 		pool.shuffle()
+		# Options this player has confused for this word come out first.
+		for confused in PlayerProfile.confused_answers(slot.word_id):
+			if pool.has(confused):
+				pool.erase(confused)
+				pool.append(confused)
 		while options.size() < count and not pool.is_empty():
 			options.append(pool.pop_back())
 	options.shuffle()

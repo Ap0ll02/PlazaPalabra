@@ -74,6 +74,8 @@ var _hints_used := 0
 var _q_hinted := false
 var _eliminated: Array = []
 var _answered := false
+var _q_missed := false
+var _q_started_msec := 0
 var _enemy_queue: Array = []
 var _first_refresh := true
 var _last_hp: Dictionary = {}
@@ -116,6 +118,8 @@ func _end(won: bool) -> void:
 	phase = Phase.OVER
 	_clear_action()
 	prompt_label.text = "Victory!" if won else "Defeated..."
+	if won:
+		Praise.celebrate("Victory!")
 	_show_text(feedback_label, "You won the fight." if won else "You couldn't keep going.")
 	next_button.text = "Continue  [Enter]"
 	next_button.visible = true
@@ -217,6 +221,8 @@ func _pending_cost() -> int:
 func _show_question() -> void:
 	phase = Phase.QUIZ
 	_answered = false
+	_q_missed = false
+	_q_started_msec = Time.get_ticks_msec()
 	_q_hinted = false
 	_eliminated = []
 	_clear_action()
@@ -261,32 +267,57 @@ func _on_hint_pressed() -> void:
 func _on_option_pressed(button: Button) -> void:
 	if phase != Phase.QUIZ or _answered:
 		return
-	_answered = true
 	var q: Dictionary = _questions[_q_index]
 	var correct: bool = button.text == q.correct
-	if correct:
+	if not correct:
+		# A miss: show the right answer, but the player still has to pick it
+		# themselves to lock it in (self-generation, no accuracy credit).
+		_q_missed = true
+		if q.kind == "combine":
+			_combine_result = 0
+		PlayerProfile.record_error(q.word_id, button.text)
+		Praise.wrong()
+		StudySession.log_event("combat_answer", {
+			"spell_id": _spell_id, "word_id": q.word_id, "correct": false, "hinted": _q_hinted,
+			"latency_ms": Time.get_ticks_msec() - _q_started_msec,
+		})
+		for b in _hotkeys:
+			if b.text == q.correct:
+				_style_option(b, RIGHT_COLOR.darkened(0.3))
+			else:
+				b.disabled = true
+				if b == button:
+					_style_option(b, WRONG_COLOR.darkened(0.2))
+		hint_button.disabled = true
+		_show_text(feedback_label, "Not quite - it's \"%s\". Pick it to lock it in." % q.correct)
+		feedback_label.add_theme_color_override("font_color", WRONG_COLOR)
+		return
+
+	_answered = true
+	if _q_missed:
+		# Recovered after a miss: no credit, but praise the effort.
+		_show_text(feedback_label, "That's it! \"%s\" - you'll remember it now." % q.correct)
+	else:
 		PlayerProfile.record_correct(q.word_id, _q_hinted)
 		if q.kind == "combine":
 			_combine_result = 1
 		else:
 			_correct_count += 1
-	elif q.kind == "combine":
-		_combine_result = 0
-	StudySession.log_event("combat_answer", {
-		"spell_id": _spell_id, "word_id": q.word_id, "correct": correct, "hinted": _q_hinted,
-	})
-
+		if not _q_hinted:
+			Praise.correct()
+		StudySession.log_event("combat_answer", {
+			"spell_id": _spell_id, "word_id": q.word_id, "correct": true, "hinted": _q_hinted,
+			"latency_ms": Time.get_ticks_msec() - _q_started_msec,
+		})
+		_show_text(feedback_label, "Correct!")
 	for b in _hotkeys:
 		b.disabled = true
 		if b.text == q.correct:
 			_style_option(b, RIGHT_COLOR.darkened(0.3))
-		elif b == button:
-			_style_option(b, WRONG_COLOR.darkened(0.2))
-	_show_text(feedback_label, "Correct!" if correct else "Not quite - it's \"%s\"." % q.correct)
-	feedback_label.add_theme_color_override("font_color", RIGHT_COLOR if correct else WRONG_COLOR)
+	feedback_label.add_theme_color_override("font_color", RIGHT_COLOR)
 	_show_text(translation_label, "Hit chance now: %d%%" % state.accuracy(_spell_id, _correct_count))
 	hint_button.disabled = true
-	next_button.text = "Next" if _q_index + 1 < _questions.size() else "Cast!"
+	next_button.text = ("Next" if _q_index + 1 < _questions.size() else "Cast!") + "  [Enter]"
 	next_button.visible = true
 
 func _on_next_pressed() -> void:
@@ -315,6 +346,8 @@ func _resolve_cast() -> void:
 		"hints": _hints_used, "bonus_pct": result.bonus_pct,
 	})
 	var spell := SpellBank.get_spell(_spell_id)
+	if result.hit and _correct_count >= _questions.size() - (1 if _combine_result >= 0 else 0) and _hints_used == 0:
+		Praise.celebrate("Perfect cast!", false)
 	var lines: Array = ["Hit chance %d%%  -  you rolled %d." % [result.accuracy, result.roll]]
 	if not result.hit:
 		lines.append("The spell fizzles! You lose the turn, but the spell stays in your book.")

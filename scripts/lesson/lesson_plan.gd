@@ -12,7 +12,8 @@ extends RefCounted
 ##
 ## Exercise specs are dictionaries with a "kind":
 ##   translate_tiles | translate_type {lang} | build {guided, order, choices,
-##   typed} | quiz {slot} | fill_blank {slot, choices} | listen_pick {slot}
+##   typed} | quiz {slot} | fill_blank {slot, choices} | listen_pick {slot} |
+##   tile_reorder | contrast_pair (word order, from Adept up)
 
 const AUDIO_DIR := "res://assets/audio/voice/"
 const AUDIO_EXTENSIONS := ["ogg", "wav", "mp3"]
@@ -50,6 +51,16 @@ static func slot_order(shuffled: bool, rng: RandomNumberGenerator) -> Array:
 			break
 	return order
 
+## The word-order exercises, shared by every tier from Adept up.
+static func _order_pool() -> Array:
+	return [{"kind": "tile_reorder"}, {"kind": "contrast_pair"}]
+
+## A random entry from `pool` plus the `always` items (kept so each tier
+## still gets its familiar exercise now and then).
+static func _pick(pool: Array, rng: RandomNumberGenerator, always: Array) -> Dictionary:
+	var all: Array = pool + always
+	return all[rng.randi_range(0, all.size() - 1)]
+
 static func _build(guided: bool, shuffled: bool, choices: int, typed: bool, rng: RandomNumberGenerator) -> Dictionary:
 	return {"kind": "build", "guided": guided, "order": slot_order(shuffled, rng), "choices": choices, "typed": typed}
 
@@ -65,14 +76,15 @@ static func build_plan(spell_id: String, mode: String, tier: int, rng: RandomNum
 		0:
 			return [_build(true, false, 3, false, rng), {"kind": "translate_tiles"}]
 		1:
-			return [_build(true, true, 3, false, rng), {"kind": "translate_type", "lang": "en"}]
+			return [_build(true, true, 3, false, rng), _pick(_order_pool(), rng, [{"kind": "translate_type", "lang": "en"}])]
 		2:
-			return [_build(false, false, 4, false, rng), {"kind": "translate_type", "lang": "en"}]
+			return [_build(false, false, 4, false, rng), _pick(_order_pool(), rng, [{"kind": "translate_type", "lang": "en"}])]
 	# Master and Grandmaster share the extra-exercise pool.
-	var pool: Array = [
+	var pool: Array = _order_pool()
+	pool.append_array([
 		{"kind": "translate_type", "lang": "es"},
 		{"kind": "fill_blank", "slot": rng.randi_range(0, 2), "choices": 4},
-	]
+	])
 	var voiced: Array = []
 	var slots: Array = SpellBank.get_spell(spell_id).slots
 	for i in slots.size():

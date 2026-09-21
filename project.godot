@@ -29,6 +29,7 @@ SpellProgress="*res://scripts/autoload/spell_progress.gd"
 Spellbook="*res://scenes/ui/Spellbook.tscn"
 Lesson="*res://scenes/ui/Lesson.tscn"
 Combat="*res://scenes/ui/BattleScreen.tscn"
+Praise="*res://scripts/autoload/praise.gd"
 
 [display]
 
