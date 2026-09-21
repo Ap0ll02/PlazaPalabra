@@ -35,7 +35,7 @@ const TIER_THRESHOLDS := [0, 4, 10, 15, 25]
 ## Flat accuracy added to a spell's base accuracy at each tier.
 const TIER_ACCURACY_BONUS := [0, 5, 10, 15, 20]
 ## How many copies of the spell fit in a loadout at each tier.
-const TIER_COPIES := [1, 2, 3, 4, 5]
+const TIER_COPIES := [2, 2, 3, 4, 5]
 
 ## The spellbook you carry into a fight: this many slots, one per cast.
 ## A spell's copies are capped by the LOWER of its tier's TIER_COPIES and
