@@ -11,6 +11,12 @@ var session_id: String = ""
 var participant_code: String = ""
 var visit_number: int = 1
 var prior_word_ids: Array = [] ## populated on visit >= 2 from the linked prior session
+var prior_word_stats: Dictionary = {} ## word_id -> Week-1 stats (errors, seen, ...)
+## Week-2 recap experiment: each word missed in Week 1 is randomly assigned
+## "emphasized" (extra retrieval rounds) or "standard" (a single card); the
+## rest are "never_missed" controls. See assign_recap_arms().
+var recap_arm: Dictionary = {}    ## word_id -> "emphasized" | "standard"
+var recap_never_missed: Array = []
 var _data_dir: String = ""
 var _session_start_msec: int = 0
 
@@ -28,16 +34,76 @@ func configure(code: String, visit: int) -> void:
 	_session_start_msec = Time.get_ticks_msec()
 
 	prior_word_ids = []
+	prior_word_stats = {}
+	recap_arm = {}
+	recap_never_missed = []
 	if visit_number > 1:
 		var prior := _find_linked_session(code, visit_number - 1)
 		if prior.has("word_stats"):
 			prior_word_ids = prior.word_stats.keys()
+			prior_word_ids.sort()
+			prior_word_stats = prior.word_stats
+			assign_recap_arms()
 		log_event("session_start", {
 			"participant_code": participant_code, "visit_number": visit_number,
 			"prior_words_found": prior_word_ids.size(),
 		})
 	else:
 		log_event("session_start", {"participant_code": participant_code, "visit_number": visit_number})
+
+## Randomized within-person assignment for the Week-2 recap. A word is
+## "missed" if it had at least one error in Week 1. Missed words are split
+## by matched-pairs randomization into two arms of (nearly) equal size and
+## equal Week-1 difficulty, so any later difference
+## between the arms is attributable to the emphasis and not to word
+## difficulty or regression to the mean. The RNG is seeded from the
+## participant code, so the assignment is reproducible for audit.
+func assign_recap_arms() -> void:
+	var missed: Array = []
+	recap_never_missed = []
+	for id in prior_word_ids:
+		if int(prior_word_stats.get(id, {}).get("errors", 0)) >= 1:
+			missed.append(id)
+		else:
+			recap_never_missed.append(id)
+	# Matched pairs: order missed words by how badly they were missed (most
+	# errors first, id as tiebreak), pair neighbours, and coin-flip which of
+	# each pair is emphasized. This keeps the two arms balanced on Week-1
+	# difficulty as well as size. An odd word out is a coin flip too.
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(participant_code + "|recap")
+	missed.sort_custom(func(x, y):
+		var ex := int(prior_word_stats[x].get("errors", 0))
+		var ey := int(prior_word_stats[y].get("errors", 0))
+		return ex > ey if ex != ey else str(x) < str(y))
+	recap_arm = {}
+	var i := 0
+	while i < missed.size():
+		if i + 1 < missed.size():
+			var first_emphasized := rng.randf() < 0.5
+			recap_arm[missed[i]] = "emphasized" if first_emphasized else "standard"
+			recap_arm[missed[i + 1]] = "standard" if first_emphasized else "emphasized"
+			i += 2
+		else:
+			recap_arm[missed[i]] = "emphasized" if rng.randf() < 0.5 else "standard"
+			i += 1
+	if missed.size() < 2:
+		# Too few to randomize: everything gets the standard recap.
+		for id in missed:
+			recap_arm[id] = "standard"
+	save_json("recap_assignment.json", {
+		"rule": "missed = >=1 error in Week 1; matched-pairs randomization (pairs adjacent by error count)",
+		"seed_source": "hash(participant_code|recap)",
+		"missed_count": missed.size(),
+		"arm": recap_arm,
+		"never_missed": recap_never_missed,
+	})
+	log_event("recap_assigned", {
+		"missed": missed.size(),
+		"emphasized": recap_arm.values().count("emphasized"),
+		"standard": recap_arm.values().count("standard"),
+		"never_missed": recap_never_missed.size(),
+	})
 
 ## Finds the most recent prior session folder for this code/visit and
 ## returns its session_summary.json (or {} if none exists -- e.g. a
@@ -116,6 +182,7 @@ func write_session_summary() -> void:
 		"final_hp": GameState.hp,
 		"word_stats": word_stats,
 		"spell_progress": SpellProgress.snapshot(),
+		"recap_arm": recap_arm,
 		"duration_msec": Time.get_ticks_msec() - _session_start_msec,
 	})
 

@@ -19,3 +19,11 @@ const FIZZLE_REFUNDS_MANA := true
 const FIZZLE_CONSUMES_SLOT := false
 ## A fizzled attack: does a queued Furia bonus survive for the next attack?
 const FURIA_SURVIVES_FIZZLE := true
+
+## Dynamic cast questions by the spell's mastery tier (tier index, 0 = Novice):
+## from this tier up a question has 4 options instead of 3 ...
+const FOUR_OPTIONS_TIER := 2
+## ... and from this tier up a question is sometimes asked in reverse
+## (Spanish word shown, pick the English) with this chance.
+const REVERSE_TIER := 3
+const REVERSE_CHANCE := 0.5

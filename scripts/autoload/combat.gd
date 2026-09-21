@@ -233,7 +233,10 @@ func _show_question() -> void:
 	if q.kind == "combine":
 		_show_text(detail_label, "Fury! Extend the spell. What is \"%s\"?" % q.prompt)
 	else:
-		_show_text(detail_label, "What is \"%s\" in Spanish?" % q.prompt)
+		if q.direction == "es_to_en":
+			_show_text(detail_label, "What does \"%s\" mean in English?" % q.prompt)
+		else:
+			_show_text(detail_label, "What is \"%s\" in Spanish?" % q.prompt)
 	_show_text(translation_label, "Hit chance so far: %d%%" % state.accuracy(_spell_id, _correct_count))
 	for option in q.options:
 		var b := _add_option(option, OPTION_COLOR, 52)
@@ -275,7 +278,7 @@ func _on_option_pressed(button: Button) -> void:
 		_q_missed = true
 		if q.kind == "combine":
 			_combine_result = 0
-		PlayerProfile.record_error(q.word_id, button.text)
+		PlayerProfile.record_error(q.word_id, q.es_of.get(button.text, button.text))
 		Praise.wrong()
 		StudySession.log_event("combat_answer", {
 			"spell_id": _spell_id, "word_id": q.word_id, "correct": false, "hinted": _q_hinted,

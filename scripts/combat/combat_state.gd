@@ -3,6 +3,7 @@ extends RefCounted
 ## random generator. The Combat overlay drives this and just displays it.
 
 const Config := preload("res://scripts/combat/combat_config.gd")
+const Distractors := preload("res://scripts/lesson/distractors.gd")
 
 var encounter: Dictionary
 var rng: RandomNumberGenerator
@@ -104,20 +105,45 @@ func _shuffled(items: Array) -> Array:
 
 func _question(kind: String, word_id: String, prompt: String, correct: String, distractors: Array) -> Dictionary:
 	var options: Array = [correct]
+	var es_of := {correct: correct}
 	for d in distractors:
 		options.append(d.es)
+		es_of[d.es] = d.es
 	return {
-		"kind": kind, "word_id": word_id, "prompt": prompt,
-		"correct": correct, "options": _shuffled(options),
+		"kind": kind, "word_id": word_id, "prompt": prompt, "direction": "en_to_es",
+		"correct": correct, "options": _shuffled(options), "es_of": es_of,
+	}
+
+## A slot question that adapts to the player: more options at higher mastery,
+## sometimes reversed at Master+, distractors drawn from past confusions.
+func _slot_question(slot: Dictionary, tier: int) -> Dictionary:
+	var count: int = 4 if tier >= Config.FOUR_OPTIONS_TIER else 3
+	var wrong: Array = Distractors.wrong_options(slot, count, rng)
+	var reverse: bool = tier >= Config.REVERSE_TIER and rng.randf() < Config.REVERSE_CHANCE
+	var options: Array = []
+	var es_of := {}
+	var all: Array = [{"es": slot.es, "en": slot.en}] + wrong
+	for d in all:
+		var shown: String = d.en if reverse else d.es
+		if not options.has(shown):
+			options.append(shown)
+			es_of[shown] = d.es
+	return {
+		"kind": "slot", "word_id": slot.word_id,
+		"prompt": slot.es if reverse else slot.en,
+		"direction": "es_to_en" if reverse else "en_to_es",
+		"correct": slot.en if reverse else slot.es,
+		"options": _shuffled(options), "es_of": es_of,
 	}
 
 ## One question per slot of the spell's sentence, plus the combine question
 ## when a queued Furia applies to this attack.
 func build_questions(spell_id: String) -> Array:
 	var spell := SpellBank.get_spell(spell_id)
+	var tier := SpellProgress.tier_index(spell_id)
 	var questions: Array = []
 	for slot in spell.slots:
-		questions.append(_question("slot", slot.word_id, slot.en, slot.es, slot.distractors))
+		questions.append(_slot_question(slot, tier))
 	if fury_applies(spell_id):
 		var phrase: Dictionary = spell.combined.phrase
 		questions.append(_question("combine", phrase.word_id, phrase.en, phrase.es, phrase.distractors))

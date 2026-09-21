@@ -23,6 +23,7 @@ const MAX_TILE_CHECKS := 3
 const MAX_TYPED_TRIES := 3   # the third miss reveals the answer
 const HINT_COLOR := Color(0.95, 0.8, 0.45)
 const HintLadder := preload("res://scripts/lesson/hint_ladder.gd")
+const Distractors := preload("res://scripts/lesson/distractors.gd")
 ## Physical key -> option index, so 1-9 pick the first nine options and 0 the tenth.
 const DIGIT_KEYS := {
 	KEY_1: 0, KEY_2: 1, KEY_3: 2, KEY_4: 3, KEY_5: 4,
@@ -734,31 +735,13 @@ func _keyboard_confirm() -> void:
 
 # --- Shared helpers --------------------------------------------------------
 
-## The correct answer plus the slot's own distractors, topped up from other
-## spells' words in the same role (and EXTRA_DISTRACTORS) up to `count`.
+## The correct answer plus wrong options chosen by Distractors (this player's
+## past confusions first), `count` options in all, shuffled.
 func _choice_options(spell: Dictionary, slot_i: int, count: int) -> Array:
 	var slot: Dictionary = spell.slots[slot_i]
 	var options: Array = [slot.es]
-	for d in slot.distractors:
-		if not options.has(d.es):
-			options.append(d.es)
-	if options.size() < count:
-		var pool: Array = []
-		for id in SpellBank.all_ids():
-			for other in SpellBank.get_spell(id).slots:
-				if other.role == slot.role and not options.has(other.es) and not pool.has(other.es):
-					pool.append(other.es)
-		for extra in SpellBank.EXTRA_DISTRACTORS.get(slot.role, []):
-			if not options.has(extra.es) and not pool.has(extra.es):
-				pool.append(extra.es)
-		pool.shuffle()
-		# Options this player has confused for this word come out first.
-		for confused in PlayerProfile.confused_answers(slot.word_id):
-			if pool.has(confused):
-				pool.erase(confused)
-				pool.append(confused)
-		while options.size() < count and not pool.is_empty():
-			options.append(pool.pop_back())
+	for d in Distractors.wrong_options(slot, count, _rng):
+		options.append(d.es)
 	options.shuffle()
 	return options
 
