@@ -3,12 +3,29 @@ extends Node2D
 
 const MIN_ITEMS_TO_PROCEED := 3
 
+## The ambush that follows learning the first spell. Ends in the tutorial fight.
+const BANDIT_DIALOGUE := {
+	"start": {
+		"speaker": "Bandit", "portrait": "bandit",
+		"text": "Hey, you! That scroll is mine now. Hand it over!",
+		"next": "fight",
+	},
+	"fight": {
+		"speaker": "Bandit", "portrait": "bandit",
+		"text": "No? Then I'll take it the hard way!",
+		"on_enter": "start_bandit_fight",
+		"next": "end",
+	},
+}
+
 @onready var progress_label: Label = $CanvasLayer/ProgressLabel
 @onready var toast_label: Label = $CanvasLayer/ToastLabel
 @onready var town_entrance: Area2D = $TownEntrance
+@onready var bandit: Node2D = $Bandit
 
 var _items_collected := 0
 var _toast_tween: Tween
+var _pending_fight := false
 
 func _ready() -> void:
 	add_to_group("gameplay_scene")
@@ -18,6 +35,10 @@ func _ready() -> void:
 	for item in get_tree().get_nodes_in_group("scavenge_items"):
 		item.collected.connect(_on_item_collected)
 	town_entrance.body_entered.connect(_on_town_entrance_entered)
+	Lesson.lesson_finished.connect(_on_lesson_finished)
+	Dialogue.action_triggered.connect(_on_dialogue_action)
+	Dialogue.dialogue_ended.connect(_on_dialogue_ended)
+	Combat.finished.connect(_on_combat_finished)
 
 func _on_item_collected(word_id: String) -> void:
 	_items_collected += 1
@@ -34,7 +55,39 @@ func _entry_blocker() -> String:
 		return "Find a few more things before heading into town."
 	if not SpellProgress.knows("bola_de_fuego"):
 		return "That glowing scroll near the wreck... you should look at it first."
+	if not GameState.has_flag("bandit_defeated"):
+		return "You can't leave with that bandit still around."
 	return ""
+
+# --- The ambush --------------------------------------------------------------
+
+func _on_lesson_finished(spell_id: String, mode: String) -> void:
+	if mode == "learn" and spell_id == "bola_de_fuego" and not GameState.has_flag("bandit_defeated"):
+		_start_ambush.call_deferred()
+
+func _start_ambush() -> void:
+	bandit.visible = true
+	Dialogue.start(BANDIT_DIALOGUE, "start", "Bandit", "bandit")
+
+func _on_dialogue_action(action: String) -> void:
+	if action == "start_bandit_fight":
+		_pending_fight = true
+
+# The fight waits for the dialogue box to close so the two never overlap.
+func _on_dialogue_ended() -> void:
+	if _pending_fight:
+		_pending_fight = false
+		Combat.start("bandit_tutorial")
+
+func _on_combat_finished(encounter_id: String, won: bool) -> void:
+	if encounter_id != "bandit_tutorial":
+		return
+	if won:
+		GameState.set_flag("bandit_defeated", true)
+		bandit.visible = false
+		Dialogue.show_message("The bandit scrambles off into the wreckage, clutching his bruises. The scroll is yours to keep.")
+	else:
+		_start_ambush.call_deferred()
 
 func _on_town_entrance_entered(body: Node) -> void:
 	if not body.is_in_group("player"):

@@ -48,7 +48,7 @@ func _process(_delta: float) -> void:
 	hud_button.visible = _in_gameplay_scene()
 
 func _input(event: InputEvent) -> void:
-	if Lesson.is_open:
+	if Lesson.is_open or Combat.is_open:
 		return
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
@@ -81,7 +81,7 @@ func _in_gameplay_scene() -> bool:
 	return scene != null and scene.is_in_group("gameplay_scene")
 
 func _can_open() -> bool:
-	return _in_gameplay_scene() and not Dialogue.is_open
+	return _in_gameplay_scene() and not Dialogue.is_open and not Combat.is_open
 
 func _on_spells_changed() -> void:
 	if is_open:
