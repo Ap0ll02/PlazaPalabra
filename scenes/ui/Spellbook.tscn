@@ -154,3 +154,7 @@ text = "[DEV] +1 practice"
 [node name="DevLearnAllButton" type="Button" parent="Overlay/Book/RightPage/DevRow"]
 layout_mode = 2
 text = "[DEV] Learn all spells"
+
+[node name="DevLessonButton" type="Button" parent="Overlay/Book/RightPage/DevRow"]
+layout_mode = 2
+text = "[DEV] Learn next spell (lesson)"

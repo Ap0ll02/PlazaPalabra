@@ -10,7 +10,7 @@ func _ready() -> void:
 	add_to_group("player")
 
 func _physics_process(_delta: float) -> void:
-	if Dialogue.is_open or Spellbook.is_open:
+	if Dialogue.is_open or Spellbook.is_open or Lesson.is_open:
 		velocity = Vector2.ZERO
 		move_and_slide()
 		return

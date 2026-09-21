@@ -63,6 +63,13 @@ const FUERZA_PHRASE := {
 	"distractors": [{"es": "con fuego", "en": "with fire"}, {"es": "sin fuerza", "en": "without force"}],
 }
 
+## Filler distractors by slot role, used when a build wants more choices
+## than a spell's own distractors provide (other spells' words are used too).
+const EXTRA_DISTRACTORS := {
+	"subject": [{"es": "Nosotros", "en": "we"}, {"es": "Ellos", "en": "they"}],
+	"reflexive": [{"es": "nos", "en": "ourselves"}],
+}
+
 # --- Spells -------------------------------------------------------------
 # "source" records where the player learns it (data only, for now).
 
@@ -71,6 +78,9 @@ const SPELLS := {
 		"name": "Fireball", "name_es": "Bola de Fuego",
 		"type": "attack", "target": "single", "source": "tutorial",
 		"sentence_es": "Yo lanzo una bola de fuego", "sentence_en": "I throw a fireball",
+		# Accepted typed answers: first entry is the canonical sentence.
+		"accepted_en": ["I throw a fireball", "I throw a ball of fire", "I throw the fireball", "I cast a fireball", "I am throwing a fireball", "I'm throwing a fireball"],
+		"accepted_es": ["Yo lanzo una bola de fuego", "Lanzo una bola de fuego"],
 		"mana_cost": 4, "base_accuracy": 15, "power": 25,
 		"slots": [
 			YO_SLOT,
@@ -89,6 +99,9 @@ const SPELLS := {
 		"name": "Lightning Bolt", "name_es": "Rayo",
 		"type": "attack", "target": "single", "source": "tomas",
 		"sentence_es": "Yo disparo un rayo", "sentence_en": "I shoot a lightning bolt",
+		# Accepted typed answers: first entry is the canonical sentence.
+		"accepted_en": ["I shoot a lightning bolt", "I shoot lightning", "I fire a lightning bolt", "I shoot a bolt of lightning", "I fire a bolt of lightning", "I shoot a ray", "I am shooting a lightning bolt", "I'm shooting a lightning bolt"],
+		"accepted_es": ["Yo disparo un rayo", "Disparo un rayo"],
 		"mana_cost": 3, "base_accuracy": 20, "power": 18,
 		"slots": [
 			YO_SLOT,
@@ -107,6 +120,9 @@ const SPELLS := {
 		"name": "Ice Storm", "name_es": "Tormenta de Hielo",
 		"type": "attack", "target": "all", "source": "ruins",
 		"sentence_es": "Ustedes sienten frío", "sentence_en": "You all feel cold",
+		# Accepted typed answers: first entry is the canonical sentence.
+		"accepted_en": ["You all feel cold", "You feel cold", "You guys feel cold", "Y'all feel cold", "You all are feeling cold", "You are all feeling cold"],
+		"accepted_es": ["Ustedes sienten frío", "Sienten frío"],
 		"mana_cost": 5, "base_accuracy": 10, "power": 10,
 		"slots": [
 			{"role": "subject", "word_id": "ustedes", "es": "Ustedes", "en": "you all",
@@ -134,6 +150,9 @@ const SPELLS := {
 		"name": "Fury", "name_es": "Furia",
 		"type": "buff", "target": "self", "source": "quest_1",
 		"sentence_es": "Yo gano fuerza", "sentence_en": "I gain strength",
+		# Accepted typed answers: first entry is the canonical sentence.
+		"accepted_en": ["I gain strength", "I gain power", "I gain force", "I get stronger", "I am gaining strength", "I'm gaining strength"],
+		"accepted_es": ["Yo gano fuerza", "Gano fuerza"],
 		"mana_cost": 2, "base_accuracy": 30, "power": 0,
 		"slots": [
 			YO_SLOT,
@@ -147,6 +166,9 @@ const SPELLS := {
 		"name": "Healing Light", "name_es": "Luz Curativa",
 		"type": "heal", "target": "self", "source": "quest_1",
 		"sentence_es": "Yo me sano", "sentence_en": "I heal myself",
+		# Accepted typed answers: first entry is the canonical sentence.
+		"accepted_en": ["I heal myself", "I cure myself", "I am healing myself", "I'm healing myself", "I heal"],
+		"accepted_es": ["Yo me sano", "Me sano"],
 		"mana_cost": 3, "base_accuracy": 40, "power": 25,
 		"slots": [
 			YO_SLOT,
@@ -160,6 +182,9 @@ const SPELLS := {
 		"name": "Stone Wall", "name_es": "Muro de Piedra",
 		"type": "shield", "target": "self", "source": "tomas",
 		"sentence_es": "Yo me protejo", "sentence_en": "I protect myself",
+		# Accepted typed answers: first entry is the canonical sentence.
+		"accepted_en": ["I protect myself", "I shield myself", "I defend myself", "I guard myself", "I am protecting myself", "I'm protecting myself"],
+		"accepted_es": ["Yo me protejo", "Me protejo"],
 		"mana_cost": 2, "base_accuracy": 25, "power": 20,
 		"slots": [
 			YO_SLOT,

@@ -30,6 +30,7 @@ var _selected := ""
 @onready var dev_row: HBoxContainer = $Overlay/Book/RightPage/DevRow
 @onready var dev_practice_button: Button = $Overlay/Book/RightPage/DevRow/DevPracticeButton
 @onready var dev_learn_all_button: Button = $Overlay/Book/RightPage/DevRow/DevLearnAllButton
+@onready var dev_lesson_button: Button = $Overlay/Book/RightPage/DevRow/DevLessonButton
 
 func _ready() -> void:
 	overlay.visible = false
@@ -40,12 +41,15 @@ func _ready() -> void:
 	practice_button.pressed.connect(_on_practice_pressed)
 	dev_practice_button.pressed.connect(_on_dev_practice_pressed)
 	dev_learn_all_button.pressed.connect(_on_dev_learn_all_pressed)
+	dev_lesson_button.pressed.connect(_on_dev_lesson_pressed)
 	SpellProgress.spells_changed.connect(_on_spells_changed)
 
 func _process(_delta: float) -> void:
 	hud_button.visible = _in_gameplay_scene()
 
 func _input(event: InputEvent) -> void:
+	if Lesson.is_open:
+		return
 	if not (event is InputEventKey and event.pressed and not event.echo):
 		return
 	if event.physical_keycode == KEY_B:
@@ -171,3 +175,9 @@ func _on_dev_practice_pressed() -> void:
 func _on_dev_learn_all_pressed() -> void:
 	for id in SpellBank.all_ids():
 		SpellProgress.learn_spell(id)
+
+func _on_dev_lesson_pressed() -> void:
+	for id in SpellBank.all_ids():
+		if not SpellProgress.knows(id):
+			Lesson.start_learn(id)
+			return

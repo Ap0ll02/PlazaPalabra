@@ -27,6 +27,7 @@ Dialogue="*res://scenes/ui/DialogueBox.tscn"
 SpellBank="*res://scripts/autoload/spell_bank.gd"
 SpellProgress="*res://scripts/autoload/spell_progress.gd"
 Spellbook="*res://scenes/ui/Spellbook.tscn"
+Lesson="*res://scenes/ui/Lesson.tscn"
 
 [display]
 
