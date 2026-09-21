@@ -15,7 +15,7 @@ const TRANSLATION_DELAY := 1.5
 
 ## A fizzled cast: is the spell's mana given back? (Hint mana never is.)
 const FIZZLE_REFUNDS_MANA := true
-## A fizzled cast: does it still use up one loadout slot?
-const FIZZLE_CONSUMES_SLOT := true
+## A fizzled cast: does it still use up one loadout slot? (false = the spell stays in your book)
+const FIZZLE_CONSUMES_SLOT := false
 ## A fizzled attack: does a queued Furia bonus survive for the next attack?
 const FURIA_SURVIVES_FIZZLE := true

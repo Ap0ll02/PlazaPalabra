@@ -317,7 +317,7 @@ func _resolve_cast() -> void:
 	var spell := SpellBank.get_spell(_spell_id)
 	var lines: Array = ["Hit chance %d%%  -  you rolled %d." % [result.accuracy, result.roll]]
 	if not result.hit:
-		lines.append("The spell fizzles! You lose the turn.")
+		lines.append("The spell fizzles! You lose the turn, but the spell stays in your book.")
 	else:
 		for ev in result.events:
 			lines.append(_describe_event(ev))
