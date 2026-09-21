@@ -6,6 +6,8 @@ extends RefCounted
 ##   hp_floor       if > 0 the player can't drop below this HP (can't lose)
 ##   start_mana     mana on turn one (defaults to MANA_MAX)
 ##   loadout        spell_id -> number of uses this fight
+##   use_book       true = ignore `loadout` and use the player's spellbook
+##                  (SpellProgress.book); the fight can't start with it empty
 ##   win            "all" (every enemy) or "boss" (any enemy marked boss)
 ##   enemies        name, hp, color, boss (optional), spells: each a Spanish
 ##                  line `es`, its English `en`, a `kind` (attack / shield /

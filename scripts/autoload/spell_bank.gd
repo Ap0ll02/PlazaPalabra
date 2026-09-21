@@ -37,6 +37,12 @@ const TIER_ACCURACY_BONUS := [0, 5, 10, 15, 20]
 ## How many copies of the spell fit in a loadout at each tier.
 const TIER_COPIES := [1, 2, 3, 4, 5]
 
+## The spellbook you carry into a fight: this many slots, one per cast.
+## A spell's copies are capped by the LOWER of its tier's TIER_COPIES and
+## its type's TYPE_COPY_CAP.
+const BOOK_SLOTS := 8
+const TYPE_COPY_CAP := {"attack": 2, "buff": 3, "shield": 3, "heal": 2}
+
 const TYPE_LABELS := {
 	"attack": "Attack", "shield": "Shield", "heal": "Heal", "buff": "Buff",
 }

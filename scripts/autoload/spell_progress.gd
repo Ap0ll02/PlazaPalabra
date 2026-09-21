@@ -6,9 +6,12 @@ extends Node
 
 signal spells_changed
 signal tier_up(spell_id: String, tier_name: String)
+signal book_changed
 
 ## spell_id -> {"practice": int}
 var _known: Dictionary = {}
+## The spellbook loadout: spell_id -> copies carried into a fight.
+var book: Dictionary = {}
 
 func learn_spell(spell_id: String) -> void:
 	if _known.has(spell_id) or not SpellBank.has_spell(spell_id):
@@ -60,6 +63,54 @@ func next_tier_threshold(spell_id: String) -> int:
 func max_copies(spell_id: String) -> int:
 	return SpellBank.TIER_COPIES[tier_index(spell_id)]
 
+# --- Spellbook loadout -------------------------------------------------------
+
+func book_total() -> int:
+	var total := 0
+	for id in book:
+		total += book[id]
+	return total
+
+func book_copies(spell_id: String) -> int:
+	return book.get(spell_id, 0)
+
+## Copies of this spell allowed in the book right now.
+func copy_cap(spell_id: String) -> int:
+	var type_cap: int = SpellBank.TYPE_COPY_CAP.get(SpellBank.get_spell(spell_id).type, 1)
+	return mini(max_copies(spell_id), type_cap)
+
+## "" if the copy can be added, otherwise the reason it can't.
+func add_block_reason(spell_id: String) -> String:
+	if not knows(spell_id):
+		return "You haven't learned that spell."
+	if book_total() >= SpellBank.BOOK_SLOTS:
+		return "Your spellbook is full. Click a spell in it to remove it."
+	if book_copies(spell_id) >= copy_cap(spell_id):
+		var spell := SpellBank.get_spell(spell_id)
+		if max_copies(spell_id) < SpellBank.TYPE_COPY_CAP.get(spell.type, 1):
+			return "Only %d cop%s of %s at %s. Practice it to carry more." % [
+				copy_cap(spell_id), "y" if copy_cap(spell_id) == 1 else "ies",
+				spell.name_es, tier_name(spell_id)]
+		return "%s spells max out at %d copies." % [SpellBank.TYPE_LABELS[spell.type], copy_cap(spell_id)]
+	return ""
+
+func add_to_book(spell_id: String) -> bool:
+	if add_block_reason(spell_id) != "":
+		return false
+	book[spell_id] = book_copies(spell_id) + 1
+	StudySession.log_event("book_add", {"spell_id": spell_id, "copies": book[spell_id]})
+	book_changed.emit()
+	return true
+
+func remove_from_book(spell_id: String) -> void:
+	if book_copies(spell_id) <= 0:
+		return
+	book[spell_id] -= 1
+	if book[spell_id] <= 0:
+		book.erase(spell_id)
+	StudySession.log_event("book_remove", {"spell_id": spell_id})
+	book_changed.emit()
+
 ## Hit chance (0-100) after `correct_count` right cast-quiz answers:
 ## base + tier bonus + a step bonus per correct answer, capped at 100.
 func accuracy_for_correct(spell_id: String, correct_count: int) -> int:
@@ -73,5 +124,5 @@ func accuracy_for_correct(spell_id: String, correct_count: int) -> int:
 func snapshot() -> Dictionary:
 	var result := {}
 	for id in _known:
-		result[id] = {"practice": practice_count(id), "tier": tier_name(id)}
+		result[id] = {"practice": practice_count(id), "tier": tier_name(id), "in_book": book_copies(id)}
 	return result

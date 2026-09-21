@@ -87,6 +87,12 @@ func start(encounter_id: String) -> void:
 	if enc.is_empty():
 		push_error("Unknown encounter: " + encounter_id)
 		return
+	if enc.get("use_book", false):
+		if SpellProgress.book_total() == 0:
+			Spellbook.open_with_note("Fill your spellbook before the fight: click spells on the left to copy them in.")
+			return
+		enc = enc.duplicate()
+		enc.loadout = SpellProgress.book.duplicate()
 	_encounter_id = encounter_id
 	state = CombatState.new(enc, _rng, GameState.MAX_HP)
 	GameState.hp = state.player_hp
