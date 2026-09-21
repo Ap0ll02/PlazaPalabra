@@ -12,6 +12,7 @@ extends Node2D
 @onready var ruins_exit: Area2D = $RuinsExit
 
 func _ready() -> void:
+	add_to_group("gameplay_scene")
 	GameState.set_quest_stage("quest_1")
 	Dialogue.action_triggered.connect(_on_dialogue_action)
 	ruins_exit.body_entered.connect(_on_ruins_exit_entered)

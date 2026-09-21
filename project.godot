@@ -24,6 +24,9 @@ GameState="*res://scripts/autoload/game_state.gd"
 WordBank="*res://scripts/autoload/word_bank.gd"
 Settings="*res://scripts/autoload/settings.gd"
 Dialogue="*res://scenes/ui/DialogueBox.tscn"
+SpellBank="*res://scripts/autoload/spell_bank.gd"
+SpellProgress="*res://scripts/autoload/spell_progress.gd"
+Spellbook="*res://scenes/ui/Spellbook.tscn"
 
 [display]
 

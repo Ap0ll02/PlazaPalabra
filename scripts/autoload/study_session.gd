@@ -85,6 +85,8 @@ func _resolve_base_dir() -> String:
 	return OS.get_executable_path().get_base_dir()
 
 func log_event(event_type: String, payload: Dictionary = {}) -> void:
+	if _data_dir == "":
+		return # not configured yet (e.g. a scene run directly from the editor)
 	var entry := {
 		"t_msec": Time.get_ticks_msec() - _session_start_msec,
 		"event": event_type,
@@ -93,6 +95,8 @@ func log_event(event_type: String, payload: Dictionary = {}) -> void:
 	_append_line(_data_dir.path_join("events.jsonl"), JSON.stringify(entry))
 
 func save_json(filename: String, data: Dictionary) -> void:
+	if _data_dir == "":
+		return
 	var f := FileAccess.open(_data_dir.path_join(filename), FileAccess.WRITE)
 	if f:
 		f.store_string(JSON.stringify(data, "\t"))
@@ -111,6 +115,7 @@ func write_session_summary() -> void:
 		"quest_stage_reached": GameState.quest_stage,
 		"final_hp": GameState.hp,
 		"word_stats": word_stats,
+		"spell_progress": SpellProgress.snapshot(),
 		"duration_msec": Time.get_ticks_msec() - _session_start_msec,
 	})
 

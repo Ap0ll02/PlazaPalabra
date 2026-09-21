@@ -11,6 +11,7 @@ var _items_collected := 0
 var _toast_tween: Tween
 
 func _ready() -> void:
+	add_to_group("gameplay_scene")
 	GameState.set_quest_stage("tutorial")
 	toast_label.modulate.a = 0.0
 	_update_progress_label()

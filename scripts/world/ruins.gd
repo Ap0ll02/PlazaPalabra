@@ -11,6 +11,7 @@ var _toast_tween: Tween
 var _pending_scene := ""
 
 func _ready() -> void:
+	add_to_group("gameplay_scene")
 	GameState.set_quest_stage("quest_2")
 	toast_label.modulate.a = 0.0
 	_update_progress_label()

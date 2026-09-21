@@ -1,0 +1,156 @@
+[gd_scene load_steps=2 format=3 uid="uid://c7w2n5k9m3x4q"]
+
+[ext_resource type="Script" path="res://scripts/autoload/spellbook.gd" id="1_spellbook"]
+
+[node name="Spellbook" type="CanvasLayer"]
+layer = 10
+script = ExtResource("1_spellbook")
+
+[node name="HudButton" type="Button" parent="."]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 176.0
+offset_bottom = 52.0
+text = "Spellbook [B]"
+
+[node name="Overlay" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Dim" type="ColorRect" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.65)
+
+[node name="Book" type="Panel" parent="Overlay"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -500.0
+offset_top = -290.0
+offset_right = 500.0
+offset_bottom = 290.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Title" type="Label" parent="Overlay/Book"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 14.0
+offset_right = 400.0
+offset_bottom = 54.0
+theme_override_font_sizes/font_size = 28
+text = "Spellbook"
+
+[node name="CloseButton" type="Button" parent="Overlay/Book"]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -150.0
+offset_top = 12.0
+offset_right = -16.0
+offset_bottom = 48.0
+grow_horizontal = 0
+text = "Close [B]"
+
+[node name="LeftPage" type="ScrollContainer" parent="Overlay/Book"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 64.0
+offset_right = 404.0
+offset_bottom = 556.0
+
+[node name="SpellList" type="VBoxContainer" parent="Overlay/Book/LeftPage"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 6
+
+[node name="Divider" type="ColorRect" parent="Overlay/Book"]
+layout_mode = 0
+offset_left = 420.0
+offset_top = 64.0
+offset_right = 422.0
+offset_bottom = 556.0
+color = Color(1, 1, 1, 0.2)
+
+[node name="RightPage" type="VBoxContainer" parent="Overlay/Book"]
+layout_mode = 0
+offset_left = 440.0
+offset_top = 64.0
+offset_right = 976.0
+offset_bottom = 556.0
+theme_override_constants/separation = 10
+
+[node name="NameLabel" type="Label" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 26
+text = "Spell name"
+
+[node name="TypeLabel" type="Label" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Type"
+
+[node name="SentenceEs" type="Label" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+autowrap_mode = 2
+text = "Spanish sentence"
+
+[node name="SentenceEn" type="Label" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+theme_override_colors/font_color = Color(1, 1, 1, 0.65)
+autowrap_mode = 2
+text = "English sentence"
+
+[node name="StatsLabel" type="Label" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+autowrap_mode = 2
+text = "Stats"
+
+[node name="TierLabel" type="Label" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 15
+text = "Tier"
+
+[node name="TierBar" type="ProgressBar" parent="Overlay/Book/RightPage"]
+custom_minimum_size = Vector2(0, 18)
+layout_mode = 2
+show_percentage = false
+
+[node name="PracticeButton" type="Button" parent="Overlay/Book/RightPage"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+text = "Practice"
+
+[node name="PracticeNote" type="Label" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 14
+theme_override_colors/font_color = Color(0.9, 0.7, 0.4, 1)
+text = ""
+
+[node name="DevRow" type="HBoxContainer" parent="Overlay/Book/RightPage"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="DevPracticeButton" type="Button" parent="Overlay/Book/RightPage/DevRow"]
+layout_mode = 2
+text = "[DEV] +1 practice"
+
+[node name="DevLearnAllButton" type="Button" parent="Overlay/Book/RightPage/DevRow"]
+layout_mode = 2
+text = "[DEV] Learn all spells"

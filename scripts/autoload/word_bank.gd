@@ -56,6 +56,34 @@ var _words: Dictionary = {
 		"spanish": "nota", "english": "note", "role": "noun",
 		"example_es": "Encuentro una nota.", "example_en": "I find a note.",
 	},
+	"yo": {
+		"spanish": "yo", "english": "I", "role": "pronoun",
+		"example_es": "Yo lanzo una roca.", "example_en": "I throw a rock.",
+	},
+	"disparar": {
+		"spanish": "disparar", "english": "to shoot", "role": "verb",
+		"example_es": "Yo disparo una flecha.", "example_en": "I shoot an arrow.",
+	},
+	"beber": {
+		"spanish": "beber", "english": "to drink", "role": "verb",
+		"example_es": "Yo bebo agua.", "example_en": "I drink water.",
+	},
+	"levantar": {
+		"spanish": "levantar", "english": "to raise", "role": "verb",
+		"example_es": "Yo levanto un escudo.", "example_en": "I raise a shield.",
+	},
+	"flecha": {
+		"spanish": "flecha", "english": "arrow", "role": "noun",
+		"example_es": "Yo disparo una flecha.", "example_en": "I shoot an arrow.",
+	},
+	"escudo": {
+		"spanish": "escudo", "english": "shield", "role": "noun",
+		"example_es": "Yo levanto un escudo.", "example_en": "I raise a shield.",
+	},
+	"pocion_fuerza": {
+		"spanish": "poción de fuerza", "english": "strength potion", "role": "noun",
+		"example_es": "Yo bebo una poción de fuerza.", "example_en": "I drink a strength potion.",
+	},
 	"sentirse_mejor": {
 		"spanish": "sentirme mejor", "english": "to feel better", "role": "heal",
 		"example_es": "Yo me siento mejor.", "example_en": "I feel better.",
