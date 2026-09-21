@@ -17,6 +17,9 @@ var prior_word_stats: Dictionary = {} ## word_id -> Week-1 stats (errors, seen, 
 ## rest are "never_missed" controls. See assign_recap_arms().
 var recap_arm: Dictionary = {}    ## word_id -> "emphasized" | "standard"
 var recap_never_missed: Array = []
+## Filled in by RecallQuiz so the end-of-session summary can show the score.
+var last_recall_correct := 0
+var last_recall_total := 0
 var _data_dir: String = ""
 var _session_start_msec: int = 0
 
@@ -258,9 +261,10 @@ func _write_summary_tables() -> void:
 	save_table("spell_progress.csv", ["spell_id", "practice_count", "tier", "copies_in_book"], spell_rows)
 	save_table("session.csv", [
 		"quest_stage_reached", "final_hp", "duration_msec", "best_streak", "words_seen", "spells_known",
+		"answers_correct_first_try", "answers_wrong",
 	], [[
 		GameState.quest_stage, GameState.hp, Time.get_ticks_msec() - _session_start_msec,
-		Praise.best, word_rows.size(), progress.size(),
+		Praise.best, word_rows.size(), progress.size(), Praise.total_correct, Praise.total_wrong,
 	]])
 
 func get_data_dir() -> String:

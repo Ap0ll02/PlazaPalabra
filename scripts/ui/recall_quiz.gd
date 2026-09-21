@@ -6,7 +6,7 @@ extends Control
 
 const MIN_WORDS_FOR_QUIZ := 3
 const QUIZ_LENGTH := 8
-const NEXT_SCENE := "res://scenes/ui/ThankYou.tscn"
+const NEXT_SCENE := "res://scenes/ui/SessionSummary.tscn"
 
 @onready var question_label: Label = $VBox/QuestionLabel
 @onready var progress_label: Label = $VBox/ProgressLabel
@@ -120,6 +120,8 @@ func _on_choice_pressed(index: int) -> void:
 		_show_question()
 
 func _finish() -> void:
+	StudySession.last_recall_correct = _correct_count
+	StudySession.last_recall_total = _quiz_words.size() if _quiz_words.size() >= MIN_WORDS_FOR_QUIZ else 0
 	var rows: Array = []
 	for r in _results:
 		rows.append([r.word_id, r.group, r.week1_errors, r.chosen, r.correct, r.is_review])

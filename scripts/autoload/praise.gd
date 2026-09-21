@@ -21,6 +21,9 @@ const CONFETTI_COLORS := [
 
 var streak := 0
 var best := 0
+## Totals for the end-of-session summary (every answer, across lessons/combat).
+var total_correct := 0
+var total_wrong := 0
 
 var _pill: Label
 var _pop: Label
@@ -69,6 +72,7 @@ func _process(_delta: float) -> void:
 
 ## A first-try correct answer.
 func correct() -> void:
+	total_correct += 1
 	streak += 1
 	best = maxi(best, streak)
 	StudySession.log_event("streak", {"streak": streak})
@@ -82,6 +86,7 @@ func correct() -> void:
 
 ## A miss. Resets the streak, kindly.
 func wrong() -> void:
+	total_wrong += 1
 	if streak == 0:
 		return
 	var ended := streak
