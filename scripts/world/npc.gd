@@ -10,6 +10,27 @@ extends "res://scripts/world/interactable.gd"
 @export var npc_name: String = "NPC"
 @export var portrait_id: String = ""
 
+const NAME_HEIGHT := 34.0
+
+func _ready() -> void:
+	super._ready()
+	_build_name_tag()
+
+## The NPC's name floats above their head. When real art lands, change
+## NAME_HEIGHT (or move the label) so it sits above the sprite instead.
+func _build_name_tag() -> void:
+	var tag := Label.new()
+	tag.text = npc_name
+	tag.add_theme_font_size_override("font_size", 16)
+	tag.add_theme_constant_override("outline_size", 5)
+	tag.add_theme_color_override("font_outline_color", Color(0, 0, 0, 0.8))
+	tag.z_index = 50
+	add_child(tag)
+	tag.position = Vector2(-tag.get_combined_minimum_size().x / 2.0, -NAME_HEIGHT - 22.0)
+
+func _prompt_height() -> float:
+	return NAME_HEIGHT + 56.0
+
 func _prompt_verb() -> String:
 	return "Talk"
 

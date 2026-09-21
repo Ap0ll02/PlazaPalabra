@@ -9,7 +9,6 @@ extends Area2D
 ## to do here.
 
 const Fx := preload("res://scripts/ui/fx.gd")
-const PROMPT_HEIGHT := 64.0
 
 var _player_in_range := false
 var _prompt: Label
@@ -38,7 +37,11 @@ func _build_prompt() -> void:
 	_prompt.modulate.a = 0.0
 	_prompt.visible = false
 	add_child(_prompt)
-	_prompt.position = Vector2(-_prompt.get_combined_minimum_size().x / 2.0, -PROMPT_HEIGHT)
+	_prompt.position = Vector2(-_prompt.get_combined_minimum_size().x / 2.0, -_prompt_height())
+
+## How far above the origin the prompt floats (NPCs raise it to clear their name).
+func _prompt_height() -> float:
+	return 64.0
 
 func _prompt_verb() -> String:
 	return "Interact"
@@ -56,7 +59,7 @@ func _update_prompt(delta: float) -> void:
 			Fx.fade_out(_prompt)
 	if want:
 		_prompt_time += delta
-		_prompt.position.y = -PROMPT_HEIGHT + sin(_prompt_time * 4.0) * 3.0
+		_prompt.position.y = -_prompt_height() + sin(_prompt_time * 4.0) * 3.0
 
 func _ui_busy() -> bool:
 	return Dialogue.is_open or Spellbook.is_open or Lesson.is_open or Combat.is_open
