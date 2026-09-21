@@ -15,6 +15,12 @@ func _ready() -> void:
 	super._ready()
 	add_to_group("search_spots")
 
+func _prompt_verb() -> String:
+	return "Search"
+
+func _can_interact() -> bool:
+	return not _searched
+
 func _on_interact() -> void:
 	if _searched:
 		return

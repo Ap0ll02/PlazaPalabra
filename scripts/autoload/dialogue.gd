@@ -52,6 +52,8 @@ var closed_frame: int = -1
 var _dialogue: Dictionary = {}
 var _default_speaker: String = ""
 var _default_portrait: String = ""
+const Fx := preload("res://scripts/ui/fx.gd")
+
 var _pending_next: String = ""
 
 func _ready() -> void:
@@ -69,7 +71,7 @@ func start(dialogue_data: Dictionary, start_node: String = "start", default_spea
 	_default_speaker = default_speaker
 	_default_portrait = default_portrait
 	is_open = true
-	panel.visible = true
+	Fx.fade_in(panel)
 	_show_node(start_node)
 
 ## Convenience for a single throwaway line (item flavor text, etc.) --
@@ -85,7 +87,7 @@ func _show_node(node_id: String) -> void:
 	var node: Dictionary = _dialogue[node_id]
 	speaker_label.text = node.get("speaker", _default_speaker)
 	speaker_label.visible = speaker_label.text != ""
-	text_label.text = node.get("text", "")
+	Fx.fade_text(text_label, node.get("text", ""))
 	_set_portrait(node.get("portrait", _default_portrait))
 
 	if node.has("on_enter"):
@@ -138,6 +140,6 @@ func _clear_choices() -> void:
 func _end_dialogue() -> void:
 	is_open = false
 	closed_frame = Engine.get_process_frames()
-	panel.visible = false
+	Fx.fade_out(panel)
 	_dialogue = {}
 	dialogue_ended.emit()

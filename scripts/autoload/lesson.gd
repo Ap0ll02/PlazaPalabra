@@ -27,6 +27,7 @@ const DIGIT_KEYS := {
 	KEY_6: 5, KEY_7: 6, KEY_8: 7, KEY_9: 8, KEY_0: 9,
 }
 
+const Fx := preload("res://scripts/ui/fx.gd")
 var is_open := false
 
 @onready var overlay: Control = $Overlay
@@ -89,7 +90,7 @@ func _begin(spell_id: String, mode: String, required: bool) -> void:
 	_lesson_mistakes = 0
 	_tier_up_name = ""
 	is_open = true
-	overlay.visible = true
+	Fx.fade_in(overlay)
 
 	var spell := SpellBank.get_spell(spell_id)
 	if mode == "learn":
@@ -138,7 +139,7 @@ func _exercise_complete(message: String) -> void:
 	if focused is LineEdit:
 		focused.release_focus()
 	_set_feedback(message, RIGHT_COLOR)
-	continue_button.text = "Continue" if _step + 1 < _plan.size() else "Finish"
+	continue_button.text = ("Continue" if _step + 1 < _plan.size() else "Finish") + "  [Enter]"
 	continue_button.visible = true
 	StudySession.log_event("lesson_exercise_done", {
 		"spell_id": _spell_id, "kind": _ex.kind, "mistakes": _exercise_mistakes,
@@ -176,7 +177,7 @@ func _abandon() -> void:
 
 func _close(completed: bool) -> void:
 	is_open = false
-	overlay.visible = false
+	Fx.fade_out(overlay)
 	audio_player.stop()
 	_clear_content()
 	_hotkeys = []
@@ -641,8 +642,8 @@ func _add_type_row(parent: Control, handler: Callable) -> LineEdit:
 	return edit
 
 func _set_feedback(text: String, color: Color = Color.WHITE) -> void:
-	feedback_label.text = text
 	feedback_label.add_theme_color_override("font_color", color)
+	Fx.fade_text(feedback_label, text, 0.2)
 
 func _clear_content() -> void:
 	for child in content.get_children():

@@ -109,7 +109,7 @@ visible = false
 custom_minimum_size = Vector2(220, 52)
 layout_mode = 2
 size_flags_horizontal = 4
-text = "Continue"
+text = "Continue  [Enter]"
 
 [node name="KeysHint" type="Label" parent="Overlay"]
 layout_mode = 1

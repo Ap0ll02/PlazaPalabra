@@ -10,6 +10,9 @@ extends "res://scripts/world/interactable.gd"
 @export var npc_name: String = "NPC"
 @export var portrait_id: String = ""
 
+func _prompt_verb() -> String:
+	return "Talk"
+
 func _on_interact() -> void:
 	Dialogue.start(_get_dialogue_data(), _get_start_node(), npc_name, portrait_id)
 

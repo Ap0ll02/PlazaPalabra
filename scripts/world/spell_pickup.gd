@@ -20,6 +20,12 @@ func _ready() -> void:
 		add_to_group(reveal_group)
 	Lesson.lesson_finished.connect(_on_lesson_finished)
 
+func _prompt_verb() -> String:
+	return "Read the scroll"
+
+func _can_interact() -> bool:
+	return not SpellProgress.knows(spell_id)
+
 func _on_interact() -> void:
 	if SpellProgress.knows(spell_id):
 		return

@@ -29,6 +29,7 @@ const OPTION_COLOR := Color(0.24, 0.55, 0.72)
 
 enum Phase { NONE, MENU, TARGET, QUIZ, RESULT, ENEMY, OVER }
 
+const Fx := preload("res://scripts/ui/fx.gd")
 var is_open := false
 var state: CombatState
 var phase := Phase.NONE
@@ -97,7 +98,7 @@ func start(encounter_id: String) -> void:
 	state = CombatState.new(enc, _rng, GameState.MAX_HP)
 	GameState.hp = state.player_hp
 	is_open = true
-	overlay.visible = true
+	Fx.fade_in(overlay)
 	title_label.text = enc.title
 	_build_enemies()
 	StudySession.log_event("combat_started", {"encounter": encounter_id})
@@ -108,7 +109,7 @@ func _end(won: bool) -> void:
 	_clear_action()
 	prompt_label.text = "Victory!" if won else "Defeated..."
 	_show_text(feedback_label, "You won the fight." if won else "You couldn't keep going.")
-	next_button.text = "Continue"
+	next_button.text = "Continue  [Enter]"
 	next_button.visible = true
 	StudySession.log_event("combat_ended", {
 		"encounter": _encounter_id, "won": won, "rounds": state.round_number, "hp_left": state.player_hp,
@@ -117,7 +118,7 @@ func _end(won: bool) -> void:
 func _close() -> void:
 	var won := state.is_won()
 	is_open = false
-	overlay.visible = false
+	Fx.fade_out(overlay)
 	phase = Phase.NONE
 	finished.emit(_encounter_id, won)
 
@@ -341,7 +342,7 @@ func _show_result(text: String, title: String) -> void:
 	prompt_label.text = title if title != "" else "Your turn"
 	_show_text(feedback_label, text)
 	feedback_label.add_theme_color_override("font_color", Color.WHITE)
-	next_button.text = "Continue"
+	next_button.text = "Continue  [Enter]"
 	next_button.visible = true
 	_refresh_all()
 
@@ -383,7 +384,7 @@ func _next_enemy() -> void:
 	_show_text(feedback_label, effect)
 	feedback_label.add_theme_color_override("font_color", Color.WHITE)
 	_schedule_translation(act.spell.en)
-	next_button.text = "Continue"
+	next_button.text = "Continue  [Enter]"
 	next_button.visible = true
 	_refresh_all()
 
@@ -483,8 +484,7 @@ func _refresh_all() -> void:
 		ui.button.modulate.a = 1.0 if e.hp > 0 else 0.3
 
 func _show_text(label: Label, text: String) -> void:
-	label.text = text
-	label.visible = text != ""
+	Fx.fade_text(label, text)
 
 func _clear_action() -> void:
 	if _translation_tween:

@@ -12,6 +12,7 @@ signal practice_requested(spell_id: String)
 
 const SpellIcons := preload("res://scripts/ui/spell_icons.gd")
 
+const Fx := preload("res://scripts/ui/fx.gd")
 var is_open := false
 
 var _selected := ""
@@ -72,7 +73,7 @@ func toggle() -> void:
 
 func open() -> void:
 	is_open = true
-	overlay.visible = true
+	Fx.fade_in(overlay)
 	StudySession.log_event("spellbook_opened")
 	_refresh()
 
@@ -85,7 +86,7 @@ func open_with_note(note: String) -> void:
 
 func close() -> void:
 	is_open = false
-	overlay.visible = false
+	Fx.fade_out(overlay)
 	StudySession.log_event("spellbook_closed")
 
 func _in_gameplay_scene() -> bool:
