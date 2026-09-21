@@ -22,6 +22,12 @@ const DIALOGUE := {
 		"on_enter": "start_boss_fight",
 		"next": "end",
 	},
+	"retry": {
+		"portrait": "sombra_smug",
+		"text": "Back for more? Then speak up this time.",
+		"on_enter": "start_boss_fight",
+		"next": "end",
+	},
 	"talk": {
 		"portrait": "sombra_smug",
 		"text": "Talk? Ha! Then talk -- if you can string a sentence together.",
@@ -32,3 +38,6 @@ const DIALOGUE := {
 
 func _get_dialogue_data() -> Dictionary:
 	return DIALOGUE
+
+func _get_start_node() -> String:
+	return "retry" if GameState.has_flag("sombra_lost") else "start"

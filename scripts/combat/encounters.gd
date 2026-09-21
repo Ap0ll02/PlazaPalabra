@@ -31,6 +31,32 @@ const ENCOUNTERS := {
 			},
 		],
 	},
+	# Boss: fights with the player's spellbook; defeating Sombra wins even if
+	# the minions are still standing.
+	"sombra_boss": {
+		"title": "Sombra",
+		"use_book": true,
+		"win": "boss",
+		"enemies": [
+			{"name": "Thug", "hp": 20, "color": Color(0.5, 0.38, 0.32), "spells": [
+				{"es": "¡Te golpeo!", "en": "I hit you!", "kind": "attack", "power": 4},
+				{"es": "¡Te empujo!", "en": "I push you!", "kind": "attack", "power": 3},
+			]},
+			{
+				"name": "Sombra", "hp": 60, "color": Color(0.35, 0.25, 0.45), "boss": true,
+				"spells": [
+					{"es": "¡Te golpeo!", "en": "I hit you!", "kind": "attack", "power": 7},
+					{"es": "¡Te lanzo una piedra!", "en": "I throw a rock at you!", "kind": "attack", "power": 10},
+					{"es": "¡Me protejo!", "en": "I protect myself!", "kind": "shield", "power": 12},
+					{"es": "¡Me curo!", "en": "I heal myself!", "kind": "heal", "power": 10},
+				],
+			},
+			{"name": "Lookout", "hp": 20, "color": Color(0.42, 0.45, 0.38), "spells": [
+				{"es": "¡Te pateo!", "en": "I kick you!", "kind": "attack", "power": 5},
+				{"es": "¡Te empujo!", "en": "I push you!", "kind": "attack", "power": 3},
+			]},
+		],
+	},
 }
 
 static func get_encounter(encounter_id: String) -> Dictionary:
