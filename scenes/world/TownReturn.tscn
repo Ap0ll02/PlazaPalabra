@@ -1,0 +1,96 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/town_return.gd" id="1_root"]
+[ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/world/npcs/mira_return_npc.gd" id="mira"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(28, 28)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
+radius = 60.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(60, 160)
+
+[node name="TownReturn" type="Node2D"]
+script = ExtResource("1_root")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.4, 0.36, 0.3, 1)
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 1100.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "Back in town. Press Enter/Space next to people or objects."
+
+[node name="Mira" type="Area2D" parent="."]
+position = Vector2(640, 360)
+script = ExtResource("mira")
+npc_name = "Mira"
+portrait_id = "mira"
+
+[node name="Visual" type="Polygon2D" parent="Mira"]
+color = Color(0.75, 0.4, 0.45, 1)
+polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Mira"]
+shape = SubResource("CircleShape2D_npc")
+
+[node name="Bandits" type="Node2D" parent="."]
+
+[node name="Bandit1" type="Polygon2D" parent="Bandits"]
+position = Vector2(520, 300)
+color = Color(0.55, 0.4, 0.3, 1)
+polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+
+[node name="Bandit2" type="Polygon2D" parent="Bandits"]
+position = Vector2(760, 300)
+color = Color(0.55, 0.4, 0.3, 1)
+polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+
+[node name="Bandit3" type="Polygon2D" parent="Bandits"]
+position = Vector2(640, 480)
+color = Color(0.55, 0.4, 0.3, 1)
+polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+
+[node name="JungleExit" type="Area2D" parent="."]
+visible = false
+position = Vector2(1240, 360)
+monitoring = false
+
+[node name="Visual" type="ColorRect" parent="JungleExit"]
+offset_left = -30.0
+offset_top = -80.0
+offset_right = 30.0
+offset_bottom = 80.0
+color = Color(0.5, 0.4, 0.55, 0.6)
+
+[node name="Label" type="Label" parent="JungleExit"]
+offset_left = -60.0
+offset_top = -110.0
+offset_right = 30.0
+offset_bottom = -82.0
+theme_override_font_sizes/font_size = 14
+text = "Jungle ->"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="JungleExit"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(80, 380)
+script = ExtResource("2_player")
+
+[node name="Visual" type="Polygon2D" parent="Player"]
+color = Color(0.4, 0.65, 0.9, 1)
+polygon = PackedVector2Array(0, -16, 14, 10, 0, 16, -14, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_player")

@@ -116,6 +116,27 @@ var _words: Dictionary = {
 		"spanish": "sentirme mejor", "english": "to feel better", "role": "heal",
 		"example_es": "Yo me siento mejor.", "example_en": "I feel better.",
 	},
+	# --- Week 2 (adjective placement) ---
+	"tu": {
+		"spanish": "tú", "english": "you", "role": "pronoun",
+		"example_es": "Tú sientes un terremoto violento.", "example_en": "You feel a violent earthquake.",
+	},
+	"tener": {
+		"spanish": "tener", "english": "to have", "role": "verb",
+		"example_es": "Yo tengo salud divina.", "example_en": "I have divine health.",
+	},
+	"rayo_supremo": {
+		"spanish": "rayo supremo", "english": "supreme lightning bolt", "role": "noun",
+		"example_es": "Yo disparo un rayo supremo.", "example_en": "I shoot a supreme lightning bolt.",
+	},
+	"terremoto_violento": {
+		"spanish": "terremoto violento", "english": "violent earthquake", "role": "noun",
+		"example_es": "Tú sientes un terremoto violento.", "example_en": "You feel a violent earthquake.",
+	},
+	"salud_divina": {
+		"spanish": "salud divina", "english": "divine health", "role": "noun",
+		"example_es": "Yo tengo salud divina.", "example_en": "I have divine health.",
+	},
 }
 
 func get_word(word_id: String) -> Dictionary:

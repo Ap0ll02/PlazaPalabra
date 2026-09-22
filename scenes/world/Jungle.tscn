@@ -1,0 +1,156 @@
+[gd_scene load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/jungle.gd" id="1_root"]
+[ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/world/npcs/jaguar_npc.gd" id="jaguar"]
+[ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="pickup"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(28, 28)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
+radius = 60.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(60, 160)
+
+[node name="Jungle" type="Node2D"]
+script = ExtResource("1_root")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.09, 0.24, 0.13, 1)
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 1100.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "The jungle. Explore: something valuable may be hidden here. Press Enter/Space next to things."
+
+[node name="Trees" type="Node2D" parent="."]
+
+[node name="Tree0" type="Polygon2D" parent="Trees"]
+position = Vector2(200, 170)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree1" type="Polygon2D" parent="Trees"]
+position = Vector2(330, 560)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree2" type="Polygon2D" parent="Trees"]
+position = Vector2(520, 200)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree3" type="Polygon2D" parent="Trees"]
+position = Vector2(640, 610)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree4" type="Polygon2D" parent="Trees"]
+position = Vector2(760, 420)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree5" type="Polygon2D" parent="Trees"]
+position = Vector2(1060, 590)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree6" type="Polygon2D" parent="Trees"]
+position = Vector2(1120, 150)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree7" type="Polygon2D" parent="Trees"]
+position = Vector2(420, 400)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="FloorScroll" type="Area2D" parent="."]
+position = Vector2(300, 650)
+script = ExtResource("pickup")
+spell_id = "salud_divina"
+flavor_text = "Half-buried under huge leaves, a scroll glows with a soft golden light."
+
+[node name="Glow" type="Polygon2D" parent="FloorScroll"]
+color = Color(1, 0.9, 0.5, 0.3)
+polygon = PackedVector2Array(-34, -20, 34, -20, 34, 20, -34, 20)
+
+[node name="Visual" type="Polygon2D" parent="FloorScroll"]
+color = Color(0.95, 0.88, 0.7, 1)
+polygon = PackedVector2Array(-20, -10, 20, -10, 20, 10, -20, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="FloorScroll"]
+shape = SubResource("CircleShape2D_npc")
+
+[node name="Jaguar" type="Area2D" parent="."]
+position = Vector2(930, 230)
+script = ExtResource("jaguar")
+npc_name = "Jaguar"
+portrait_id = ""
+
+[node name="Visual" type="Polygon2D" parent="Jaguar"]
+color = Color(0.85, 0.6, 0.25, 1)
+polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Jaguar"]
+shape = SubResource("CircleShape2D_npc")
+
+[node name="QuakeScroll" type="Area2D" parent="."]
+visible = false
+position = Vector2(1010, 150)
+monitoring = false
+script = ExtResource("pickup")
+spell_id = "terremoto_violento"
+flavor_text = "On the shrine's altar, a scroll trembles as if the ground beneath it were shaking."
+
+[node name="Glow" type="Polygon2D" parent="QuakeScroll"]
+color = Color(1, 0.9, 0.5, 0.3)
+polygon = PackedVector2Array(-34, -20, 34, -20, 34, 20, -34, 20)
+
+[node name="Visual" type="Polygon2D" parent="QuakeScroll"]
+color = Color(0.95, 0.88, 0.7, 1)
+polygon = PackedVector2Array(-20, -10, 20, -10, 20, 10, -20, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="QuakeScroll"]
+shape = SubResource("CircleShape2D_npc")
+
+[node name="ClearingExit" type="Area2D" parent="."]
+position = Vector2(1240, 480)
+
+[node name="Visual" type="ColorRect" parent="ClearingExit"]
+offset_left = -30.0
+offset_top = -80.0
+offset_right = 30.0
+offset_bottom = 80.0
+color = Color(0.5, 0.4, 0.55, 0.6)
+
+[node name="Label" type="Label" parent="ClearingExit"]
+offset_left = -60.0
+offset_top = -110.0
+offset_right = 30.0
+offset_bottom = -82.0
+theme_override_font_sizes/font_size = 14
+text = "Clearing ->"
+horizontal_alignment = 1
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ClearingExit"]
+shape = SubResource("RectangleShape2D_exit")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(80, 380)
+script = ExtResource("2_player")
+
+[node name="Visual" type="Polygon2D" parent="Player"]
+color = Color(0.4, 0.65, 0.9, 1)
+polygon = PackedVector2Array(0, -16, 14, 10, 0, 16, -14, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_player")

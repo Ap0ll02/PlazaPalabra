@@ -84,6 +84,7 @@ const EXTRA_DISTRACTORS := {
 const WORD_ORDER_NOTES := {
 	"pronoun_before_verb": "In Spanish, the pronoun (me, te, los...) goes BEFORE the verb: \"me protejo\", not \"protejo me\".",
 	"verb_before_object": "Spanish keeps the verb before what it acts on: verb first, then the object.",
+	"adjective_after_noun": "Spanish usually puts the adjective AFTER the noun: \"rayo supremo\" (bolt supreme), where English says \"supreme bolt\".",
 	"noun_before_de_noun": "Spanish names the thing first: \"bola de fuego\" (ball of fire), not \"fire ball\".",
 }
 
@@ -198,6 +199,66 @@ const SPELLS := {
 				"distractors": [{"es": "te", "en": "yourself"}, {"es": "se", "en": "himself/herself"}]},
 			{"role": "verb", "word_id": "sanar", "es": "sano", "en": "heal",
 				"distractors": [{"es": "sanas", "en": "you heal"}, {"es": "sanamos", "en": "we heal"}]},
+		],
+	},
+	# --- Week 2: adjective placement (noun THEN adjective, unlike English) ---
+	"rayo_supremo": {
+		"order_foil": "Yo disparo un supremo rayo", "order_pattern": "adjective_after_noun",
+		"name": "Supreme Bolt", "name_es": "Rayo Supremo",
+		"type": "attack", "target": "single", "source": "week2_bandits",
+		"sentence_es": "Yo disparo un rayo supremo", "sentence_en": "I shoot a supreme lightning bolt",
+		"accepted_en": ["I shoot a supreme lightning bolt", "I fire a supreme lightning bolt", "I shoot a supreme bolt", "I shoot a supreme bolt of lightning", "I am shooting a supreme lightning bolt", "I'm shooting a supreme lightning bolt"],
+		"accepted_es": ["Yo disparo un rayo supremo", "Disparo un rayo supremo"],
+		"mana_cost": 5, "base_accuracy": 15, "power": 34,
+		"slots": [
+			YO_SLOT,
+			{"role": "verb", "word_id": "disparar", "es": "disparo", "en": "shoot",
+				"distractors": [{"es": "disparas", "en": "you shoot"}, {"es": "disparan", "en": "they shoot"}]},
+			{"role": "object", "word_id": "rayo_supremo", "es": "un rayo supremo", "en": "a supreme lightning bolt",
+				"distractors": [{"es": "un supremo rayo", "en": "a supreme lightning bolt"}, {"es": "un rayo violento", "en": "a violent lightning bolt"}]},
+		],
+		"combined": {
+			"sentence_es": "Yo disparo un rayo supremo con fuerza",
+			"sentence_en": "I shoot a supreme lightning bolt with force",
+			"phrase": FUERZA_PHRASE,
+		},
+	},
+	"terremoto_violento": {
+		"order_foil": "Tú sientes un violento terremoto", "order_pattern": "adjective_after_noun",
+		"name": "Violent Quake", "name_es": "Terremoto Violento",
+		"type": "attack", "target": "all", "source": "week2_jungle_beast",
+		"sentence_es": "Tú sientes un terremoto violento", "sentence_en": "You feel a violent earthquake",
+		"accepted_en": ["You feel a violent earthquake", "You are feeling a violent earthquake", "You feel a violent quake", "You feel a violent tremor"],
+		"accepted_es": ["Tú sientes un terremoto violento", "Sientes un terremoto violento"],
+		"mana_cost": 6, "base_accuracy": 12, "power": 16,
+		"slots": [
+			{"role": "subject", "word_id": "tu", "es": "Tú", "en": "you",
+				"distractors": [{"es": "Yo", "en": "I"}, {"es": "Ustedes", "en": "you all"}]},
+			{"role": "verb", "word_id": "sentir", "es": "sientes", "en": "feel",
+				"distractors": [{"es": "siento", "en": "I feel"}, {"es": "sienten", "en": "they feel"}]},
+			{"role": "object", "word_id": "terremoto_violento", "es": "un terremoto violento", "en": "a violent earthquake",
+				"distractors": [{"es": "un violento terremoto", "en": "a violent earthquake"}, {"es": "un terremoto suave", "en": "a gentle earthquake"}]},
+		],
+		"combined": {
+			"sentence_es": "Tú sientes un terremoto violento con fuerza",
+			"sentence_en": "You feel a violent earthquake with force",
+			"phrase": FUERZA_PHRASE,
+		},
+	},
+	"salud_divina": {
+		"order_foil": "Yo tengo divina salud", "order_pattern": "adjective_after_noun",
+		"name": "Divine Health", "name_es": "Salud Divina",
+		"type": "heal", "target": "self", "source": "week2_jungle_floor",
+		"sentence_es": "Yo tengo salud divina", "sentence_en": "I have divine health",
+		"accepted_en": ["I have divine health", "I have holy health", "I have divine well-being"],
+		"accepted_es": ["Yo tengo salud divina", "Tengo salud divina"],
+		"mana_cost": 4, "base_accuracy": 35, "power": 40,
+		"slots": [
+			YO_SLOT,
+			{"role": "verb", "word_id": "tener", "es": "tengo", "en": "have",
+				"distractors": [{"es": "tienes", "en": "you have"}, {"es": "tiene", "en": "he/she has"}]},
+			{"role": "object", "word_id": "salud_divina", "es": "salud divina", "en": "divine health",
+				"distractors": [{"es": "divina salud", "en": "divine health"}, {"es": "salud débil", "en": "weak health"}]},
 		],
 	},
 	"muro_de_piedra": {

@@ -415,7 +415,14 @@ func _next_enemy() -> void:
 	phase = Phase.ENEMY
 	_clear_action()
 	prompt_label.text = "%s casts:" % act.name
-	_show_text(detail_label, act.spell.es)
+	var line_es: String = act.spell.es
+	var line_en: String = act.spell.en
+	if not act.phase_change.is_empty():
+		prompt_label.text = "%s powers up!" % act.name
+		line_es = "%s\n%s" % [act.phase_change.es, act.spell.es]
+		line_en = "%s  %s" % [act.phase_change.en, act.spell.en]
+		Praise.celebrate("Phase two!", false)
+	_show_text(detail_label, line_es)
 
 	var effect := ""
 	match act.spell.kind:
@@ -427,7 +434,7 @@ func _next_enemy() -> void:
 		"heal": effect = "%s recovers %d HP." % [act.name, act.gained]
 	_show_text(feedback_label, effect)
 	feedback_label.add_theme_color_override("font_color", Color.WHITE)
-	_schedule_translation(act.spell.en)
+	_schedule_translation(line_en)
 	next_button.text = "Continue  [Enter]"
 	next_button.visible = true
 	_refresh_all()

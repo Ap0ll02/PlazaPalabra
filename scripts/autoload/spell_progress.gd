@@ -120,6 +120,31 @@ func accuracy_for_correct(spell_id: String, correct_count: int) -> int:
 		accuracy += SpellBank.STEP_BONUSES[i]
 	return clampi(accuracy, 0, 100)
 
+## The spells a returning (Week-2) participant starts with if their Week-1
+## file can't be found.
+const DEFAULT_RESTORE := ["bola_de_fuego", "rayo", "muro_de_piedra"]
+
+## Restores spells, practice counts and the book from a Week-1 snapshot()
+## (the "spell_progress" entry of session_summary.json). An empty or
+## unusable snapshot falls back to DEFAULT_RESTORE at Novice.
+func restore(saved: Dictionary) -> void:
+	_known = {}
+	book = {}
+	for id in saved:
+		if SpellBank.has_spell(id):
+			_known[id] = {"practice": int(saved[id].get("practice", 0))}
+	var fallback := _known.is_empty()
+	if fallback:
+		for id in DEFAULT_RESTORE:
+			_known[id] = {"practice": 0}
+	for id in known_ids():
+		var copies := int(saved.get(id, {}).get("in_book", 0)) if not fallback else copy_cap(id)
+		for i in copies:
+			add_to_book(id)
+	StudySession.log_event("spells_restored", {"spells": known_ids(), "book": book, "fallback": fallback})
+	spells_changed.emit()
+	book_changed.emit()
+
 ## For the session summary: spell_id -> {practice, tier}.
 func snapshot() -> Dictionary:
 	var result := {}

@@ -34,6 +34,7 @@ func _init(enc: Dictionary, rng_: RandomNumberGenerator, max_hp: int) -> void:
 		enemies.append({
 			"name": e.name, "hp": e.hp, "max_hp": e.hp, "shield": 0,
 			"spells": e.spells, "color": e.get("color", Color.GRAY), "boss": e.get("boss", false),
+			"phase2": e.get("phase2", {}), "phase2_on": false,
 		})
 
 # --- Queries ---------------------------------------------------------------
@@ -228,8 +229,15 @@ func resolve_struggle(target: int) -> Dictionary:
 ## One enemy casts a random spell from its pool.
 func enemy_action(index: int) -> Dictionary:
 	var e: Dictionary = enemies[index]
+	# Phase change: below the threshold the enemy switches to a stronger set
+	# of moves and announces it (once).
+	var phase_line := {}
+	if not e.phase2.is_empty() and not e.phase2_on and e.hp * 100 <= e.max_hp * e.phase2.hp_pct:
+		e.phase2_on = true
+		e.spells = e.phase2.spells
+		phase_line = {"es": e.phase2.es, "en": e.phase2.en}
 	var spell: Dictionary = e.spells[rng.randi_range(0, e.spells.size() - 1)]
-	var result := {"enemy": index, "name": e.name, "spell": spell, "taken": 0, "absorbed": 0, "gained": 0}
+	var result := {"enemy": index, "name": e.name, "spell": spell, "taken": 0, "absorbed": 0, "gained": 0, "phase_change": phase_line}
 	match spell.kind:
 		"attack":
 			var absorbed := mini(shield, spell.power)

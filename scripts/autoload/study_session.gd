@@ -47,6 +47,8 @@ func configure(code: String, visit: int) -> void:
 			prior_word_ids.sort()
 			prior_word_stats = prior.word_stats
 			assign_recap_arms()
+		# Week 2 starts with the spells (and practice) earned in Week 1.
+		SpellProgress.restore(prior.get("spell_progress", {}))
 		log_event("session_start", {
 			"participant_code": participant_code, "visit_number": visit_number,
 			"prior_words_found": prior_word_ids.size(),

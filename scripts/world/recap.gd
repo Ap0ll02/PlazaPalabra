@@ -119,7 +119,10 @@ func _show_item() -> void:
 
 func _options_for(word_id: String) -> Array:
 	var word: Dictionary = WordBank.get_word(word_id)
-	var others: Array = WordBank.all_word_ids().filter(func(id): return id != word_id)
+	# Wrong options come from words this participant has actually met (so
+	# unseen Week-2 vocabulary isn't previewed), if there are enough of them.
+	var pool: Array = StudySession.prior_word_ids if StudySession.prior_word_ids.size() >= 5 else WordBank.all_word_ids()
+	var others: Array = pool.filter(func(id): return id != word_id)
 	_shuffle(others, _rng)
 	# Same-role words are the most tempting distractors, so prefer them.
 	var same: Array = others.filter(func(id): return WordBank.get_word(id).role == word.role)
@@ -199,4 +202,4 @@ func _on_next() -> void:
 		_show_item()
 
 func _go_to_extension() -> void:
-	get_tree().change_scene_to_file("res://scenes/world/ExtensionContent.tscn")
+	get_tree().change_scene_to_file("res://scenes/world/TownReturn.tscn")

@@ -1,0 +1,102 @@
+[gd_scene load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/world/clearing.gd" id="1_root"]
+[ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/world/npcs/sombra_return_npc.gd" id="sombra"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(28, 28)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
+radius = 60.0
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_exit"]
+size = Vector2(60, 160)
+
+[node name="Clearing" type="Node2D"]
+script = ExtResource("1_root")
+
+[node name="Background" type="ColorRect" parent="."]
+offset_right = 1280.0
+offset_bottom = 720.0
+color = Color(0.11, 0.22, 0.15, 1)
+
+[node name="HintLabel" type="Label" parent="."]
+offset_left = 40.0
+offset_top = 20.0
+offset_right = 1100.0
+offset_bottom = 50.0
+theme_override_colors/font_color = Color(1, 1, 1, 0.85)
+theme_override_font_sizes/font_size = 16
+text = "A clearing in the jungle. Someone is waiting here."
+
+[node name="Trees" type="Node2D" parent="."]
+
+[node name="Tree0" type="Polygon2D" parent="Trees"]
+position = Vector2(220, 180)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree1" type="Polygon2D" parent="Trees"]
+position = Vector2(360, 580)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree2" type="Polygon2D" parent="Trees"]
+position = Vector2(560, 120)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree3" type="Polygon2D" parent="Trees"]
+position = Vector2(700, 640)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree4" type="Polygon2D" parent="Trees"]
+position = Vector2(1130, 600)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Tree5" type="Polygon2D" parent="Trees"]
+position = Vector2(150, 520)
+color = Color(0.06, 0.3, 0.13, 1)
+polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -26, 30)
+
+[node name="Cage" type="Node2D" parent="."]
+position = Vector2(1090, 200)
+
+[node name="Bars" type="ColorRect" parent="Cage"]
+offset_left = -60.0
+offset_top = -60.0
+offset_right = 60.0
+offset_bottom = 60.0
+color = Color(0.5, 0.45, 0.4, 0.35)
+
+[node name="Tomas" type="Polygon2D" parent="."]
+position = Vector2(1090, 210)
+color = Color(0.5, 0.45, 0.7, 1)
+polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+
+[node name="Sombra" type="Area2D" parent="."]
+position = Vector2(900, 380)
+script = ExtResource("sombra")
+npc_name = "Sombra"
+portrait_id = "sombra"
+
+[node name="Visual" type="Polygon2D" parent="Sombra"]
+color = Color(0.3, 0.2, 0.42, 1)
+polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Sombra"]
+shape = SubResource("CircleShape2D_npc")
+
+[node name="Player" type="CharacterBody2D" parent="."]
+position = Vector2(80, 380)
+script = ExtResource("2_player")
+
+[node name="Visual" type="Polygon2D" parent="Player"]
+color = Color(0.4, 0.65, 0.9, 1)
+polygon = PackedVector2Array(0, -16, 14, 10, 0, 16, -14, 10)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
+shape = SubResource("RectangleShape2D_player")

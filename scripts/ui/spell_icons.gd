@@ -11,6 +11,9 @@ const SHAPES := {
 	"tormenta_de_hielo": '<path d="M32 6V58M9.5 19L54.5 45M9.5 45L54.5 19"/><path d="M26 12L32 18L38 12M26 52L32 46L38 52M11 30L19 31L17 22M53 34L45 33L47 42"/>',
 	"furia": '<circle cx="32" cy="32" r="26"/><path d="M19 30L32 17L45 30M19 46L32 33L45 46"/>',
 	"luz_curativa": '<circle cx="32" cy="32" r="26"/><path d="M32 17V47M17 32H47"/>',
+	"rayo_supremo": '<circle cx="32" cy="32" r="28"/><path d="M36 10L18 34H30L27 54L46 28H34Z"/>',
+	"terremoto_violento": '<path d="M6 38L18 32L26 44L36 30L46 42L58 34"/><path d="M10 54H54M18 18L22 25M32 10V20M46 18L42 25"/>',
+	"salud_divina": '<path d="M32 56C10 42 8 24 20 18C26 15 31 19 32 24C33 19 38 15 44 18C56 24 54 42 32 56Z"/><ellipse cx="32" cy="8" rx="11" ry="3"/>',
 	"muro_de_piedra": '<path d="M32 6L52 14V32C52 46 43 54 32 58C21 54 12 46 12 32V14Z"/><path d="M32 6V58M12 30H52"/>',
 }
 
