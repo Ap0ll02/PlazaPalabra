@@ -76,7 +76,7 @@ polygon = PackedVector2Array(-40, 0, -28, -34, 0, -50, 28, -34, 40, 0, 26, 30, -
 [node name="FloorScroll" type="Area2D" parent="."]
 position = Vector2(300, 650)
 script = ExtResource("pickup")
-spell_id = "salud_divina"
+spell_id = "luz_dorada"
 flavor_text = "Half-buried under huge leaves, a scroll glows with a soft golden light."
 
 [node name="Glow" type="Polygon2D" parent="FloorScroll"]
@@ -103,23 +103,23 @@ polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Jaguar"]
 shape = SubResource("CircleShape2D_npc")
 
-[node name="QuakeScroll" type="Area2D" parent="."]
+[node name="WindScroll" type="Area2D" parent="."]
 visible = false
 position = Vector2(1010, 150)
 monitoring = false
 script = ExtResource("pickup")
-spell_id = "terremoto_violento"
-flavor_text = "On the shrine's altar, a scroll trembles as if the ground beneath it were shaking."
+spell_id = "viento_plateado"
+flavor_text = "On the shrine's altar, a scroll swirls, wrapped in a silvery wind."
 
-[node name="Glow" type="Polygon2D" parent="QuakeScroll"]
+[node name="Glow" type="Polygon2D" parent="WindScroll"]
 color = Color(1, 0.9, 0.5, 0.3)
 polygon = PackedVector2Array(-34, -20, 34, -20, 34, 20, -34, 20)
 
-[node name="Visual" type="Polygon2D" parent="QuakeScroll"]
+[node name="Visual" type="Polygon2D" parent="WindScroll"]
 color = Color(0.95, 0.88, 0.7, 1)
 polygon = PackedVector2Array(-20, -10, 20, -10, 20, 10, -20, 10)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="QuakeScroll"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WindScroll"]
 shape = SubResource("CircleShape2D_npc")
 
 [node name="ClearingExit" type="Area2D" parent="."]

@@ -646,9 +646,6 @@ func _setup_tile_reorder() -> void:
 func _setup_contrast_pair() -> void:
 	var spell := SpellBank.get_spell(_spell_id)
 	prompt_label.text = "Which sentence is correct?"
-	if spell.get("order_pattern", "") == "adjective_after_noun":
-		# Both orders can occur in Spanish; one is the usual, natural one.
-		prompt_label.text = "Which sentence is the usual way to say it?"
 	guide_label.text = spell.sentence_en
 	for slot in spell.slots:
 		PlayerProfile.record_seen(slot.word_id)

@@ -1,10 +1,10 @@
 extends Node2D
-## Week 2, part 2: the jungle. Two spells are hidden here: Salud Divina on
-## the floor (a normal pickup) and Terremoto Violento, guarded by an
+## Week 2, part 2: the jungle. Two spells are hidden here: Luz Dorada on
+## the floor (a normal pickup) and Viento Plateado, guarded by an
 ## optional jaguar. The clearing to the east is where Sombra waits.
 
 @onready var jaguar: Area2D = $Jaguar
-@onready var quake_scroll: Area2D = $QuakeScroll
+@onready var wind_scroll: Area2D = $WindScroll
 
 var _pending_fight := false
 
@@ -18,8 +18,8 @@ func _ready() -> void:
 	if GameState.has_flag("w2_jaguar_defeated"):
 		_after_jaguar()
 	else:
-		quake_scroll.visible = false
-		quake_scroll.monitoring = false
+		wind_scroll.visible = false
+		wind_scroll.monitoring = false
 
 func _on_dialogue_action(action: String) -> void:
 	if action == "start_jaguar_fight":
@@ -43,8 +43,8 @@ func _on_combat_finished(encounter_id: String, won: bool) -> void:
 func _after_jaguar() -> void:
 	jaguar.visible = false
 	jaguar.monitoring = false
-	quake_scroll.visible = true
-	quake_scroll.set_deferred("monitoring", true)
+	wind_scroll.visible = true
+	wind_scroll.set_deferred("monitoring", true)
 
 func _on_clearing_exit_entered(body: Node) -> void:
 	if body.is_in_group("player"):

@@ -51,7 +51,7 @@ const ENCOUNTERS := {
 			]},
 		],
 	},
-	# Optional: the jaguar guards a scroll (Terremoto Violento).
+	# Optional: the jaguar guards a scroll (Viento Plateado).
 	"jaguar_optional": {
 		"title": "The Jaguar",
 		"use_book": true,
@@ -83,7 +83,7 @@ const ENCOUNTERS := {
 					"hp_pct": 50, "es": "¡Ahora sí!", "en": "Now I'm serious!",
 					"spells": [
 						{"es": "¡Te golpeo con fuerza!", "en": "I hit you with force!", "kind": "attack", "power": 13},
-						{"es": "¡Te lanzo un rayo violento!", "en": "I throw a violent lightning bolt at you!", "kind": "attack", "power": 16},
+						{"es": "¡Te lanzo un rayo negro!", "en": "I throw a black lightning bolt at you!", "kind": "attack", "power": 16},
 						{"es": "¡Me protejo!", "en": "I protect myself!", "kind": "shield", "power": 18},
 						{"es": "¡Me curo!", "en": "I heal myself!", "kind": "heal", "power": 14},
 					],

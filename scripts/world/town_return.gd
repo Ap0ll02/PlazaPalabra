@@ -1,7 +1,7 @@
 extends Node2D
 ## Week 2, part 1: you come back to town with Mira's money and find her
 ## surrounded by three bandits. Beat them, return the money, learn Rayo
-## Supremo from the scroll one of them dropped, discover Tomas is missing,
+## Morado from the scroll one of them dropped, discover Tomas is missing,
 ## and head into the jungle. All the dialogue is in the dicts below, so
 ## editing the story is editing text.
 
@@ -118,10 +118,10 @@ func _on_dialogue_ended() -> void:
 			Combat.start("bandits_week2")
 		"scroll":
 			_pending = ""
-			if SpellProgress.knows("rayo_supremo"):
+			if SpellProgress.knows("rayo_morado"):
 				Dialogue.start.call_deferred(TOMAS_MISSING)
 			else:
-				Lesson.start_learn("rayo_supremo", true)
+				Lesson.start_learn("rayo_morado", true)
 
 func _on_combat_finished(encounter_id: String, won: bool) -> void:
 	if encounter_id != "bandits_week2":
@@ -134,7 +134,7 @@ func _on_combat_finished(encounter_id: String, won: bool) -> void:
 		_start_ambush.call_deferred("retry")
 
 func _on_lesson_finished(spell_id: String, mode: String) -> void:
-	if mode == "learn" and spell_id == "rayo_supremo":
+	if mode == "learn" and spell_id == "rayo_morado":
 		Dialogue.start.call_deferred(TOMAS_MISSING)
 
 func _reveal_jungle() -> void:
