@@ -59,11 +59,11 @@ text = "You are being invited to take part in a research study about language le
 
 What you will do: play a short (10-20 minute) narrative game, answer a brief survey before and after playing, complete a short vocabulary recall quiz at the end, and then see a summary of your own results (for example, words you met and your quiz score). You may also be invited to return about a week later for a second session.
 
-Data collected: your in-game actions (e.g. words encountered, hints used, combat choices) and your survey/quiz answers. This data is stored locally on this computer and is not linked to your name.
+Data collected: your in-game actions (e.g. words encountered, hints used, combat choices) and your survey/quiz answers. This data is stored locally on this computer and is not linked to your name, but it is linked to your participation times.
 
 Voluntary participation: you may stop at any time without penalty. Declining below will not affect you in any way.
 
-Contact: [researcher name / email / IRB contact placeholder]."
+Contact: [Jack Ratermann / jratermann@unr.edu / IRB contact placeholder]."
 autowrap_mode = 2
 
 [node name="ButtonRow" type="HBoxContainer" parent="Margin/VBox"]

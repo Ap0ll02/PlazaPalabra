@@ -8,6 +8,11 @@ extends "res://scripts/world/npc.gd"
 const DIALOGUE := {
 	"start": {
 		"portrait": "tomas_thoughtful",
+		"text": "Hola, a traveler I take it?",
+		"next": "real_start",
+	},
+	"real_start": {
+		"portrait": "tomas_thoughtful",
 		"text": "Ah, Mira sent you. I heard about the robbery.",
 		"next": "lead",
 	},
@@ -25,12 +30,12 @@ const DIALOGUE := {
 	},
 	"danger": {
 		"portrait": "tomas_serious",
-		"text": "Sombra won't listen to mumbling. Speak clearly and put your words together well -- in the ruins, words are your best weapon.",
+		"text": "Words are your best weapon, you may not be from around here, but I can teach you what I know.",
 		"next": "teach",
 	},
 	"teach": {
 		"portrait": "tomas",
-		"text": "Then you shouldn't go empty-handed. Let me teach you two spells -- listen closely.",
+		"text": "Listen close, and use these incantations, they will help if things get messy...",
 		"on_enter": "teach_spells",
 		"next": "go",
 	},

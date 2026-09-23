@@ -18,7 +18,7 @@ const DIALOGUE := {
 	},
 	"fight": {
 		"portrait": "sombra_angry",
-		"text": "Then speak up, little wizard... if you can!",
+		"text": "Voy a vencerte... I will defeat you.",
 		"on_enter": "start_final_fight",
 		"next": "end",
 	},

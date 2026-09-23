@@ -30,7 +30,7 @@ const DIALOGUE := {
 	},
 	"talk": {
 		"portrait": "sombra_smug",
-		"text": "Talk? Ha! Then talk -- if you can string a sentence together.",
+		"text": "Talk? Ha! Let's see if you can string a sentence together.",
 		"on_enter": "start_boss_fight",
 		"next": "end",
 	},

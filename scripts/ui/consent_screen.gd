@@ -10,9 +10,9 @@ func _ready() -> void:
 	decline_button.pressed.connect(_on_decline)
 
 func _on_agree() -> void:
-	StudySession.log_event("consent_given")
+	StudySession.pending_consent_given = true
 	get_tree().change_scene_to_file("res://scenes/ui/ParticipantScreen.tscn")
 
 func _on_decline() -> void:
-	StudySession.log_event("consent_declined")
+	StudySession.reset_for_new_session()
 	get_tree().change_scene_to_file("res://scenes/ui/MainMenu.tscn")

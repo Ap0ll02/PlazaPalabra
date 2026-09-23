@@ -9,6 +9,8 @@ extends Node
 
 var session_id: String = ""
 var participant_code: String = ""
+var pending_first_visit_code: String = ""
+var pending_consent_given := false
 var visit_number: int = 1
 var prior_word_ids: Array = [] ## populated on visit >= 2 from the linked prior session
 var prior_word_stats: Dictionary = {} ## word_id -> Week-1 stats (errors, seen, ...)
@@ -23,9 +25,25 @@ var last_recall_total := 0
 var _data_dir: String = ""
 var _session_start_msec: int = 0
 
-## Called by ParticipantScreen once the participant code + visit number are
-## known -- everything before that point (consent) doesn't need a data dir.
+## Clear the previous session before a new person reaches the consent screen.
+## A first-time participant's code stays in memory until adult eligibility is known.
+func reset_for_new_session() -> void:
+	session_id = ""
+	participant_code = ""
+	pending_first_visit_code = ""
+	pending_consent_given = false
+	visit_number = 1
+	_data_dir = ""
+	_session_start_msec = 0
+	prior_word_ids = []
+	prior_word_stats = {}
+	recap_arm = {}
+	recap_never_missed = []
+
+## Called for return visits at ParticipantScreen, or after an eligible
+## first-time participant completes the pre-survey.
 func configure(code: String, visit: int) -> void:
+	pending_first_visit_code = ""
 	participant_code = code
 	visit_number = visit
 	var dt := Time.get_datetime_dict_from_system()
@@ -55,6 +73,9 @@ func configure(code: String, visit: int) -> void:
 		})
 	else:
 		log_event("session_start", {"participant_code": participant_code, "visit_number": visit_number})
+	if pending_consent_given:
+		log_event("consent_given")
+		pending_consent_given = false
 
 ## Randomized within-person assignment for the Week-2 recap. A word is
 ## "missed" if it had at least one error in Week 1. Missed words are split

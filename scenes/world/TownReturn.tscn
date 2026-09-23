@@ -1,9 +1,9 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene load_steps=7 format=3 uid="uid://dwxqhsosmfjox"]
 
-[ext_resource type="Script" path="res://scripts/world/town_return.gd" id="1_root"]
-[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="Script" uid="uid://syv628uy6s03" path="res://scripts/world/town_return.gd" id="1_root"]
 [ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
-[ext_resource type="Script" path="res://scripts/world/npcs/mira_return_npc.gd" id="mira"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="Script" uid="uid://f6os64ja8r8e" path="res://scripts/world/npcs/mira_return_npc.gd" id="mira"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
 radius = 60.0

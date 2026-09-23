@@ -1,10 +1,10 @@
-[gd_scene load_steps=9 format=3 uid="uid://f7p2k9w4m1t6c"]
+[gd_scene load_steps=9 format=3 uid="uid://cdb6y70u2tyfk"]
 
-[ext_resource type="Script" path="res://scripts/world/outskirts.gd" id="1_outskirts"]
-[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="Script" uid="uid://dmtw8d1jyuuyn" path="res://scripts/world/outskirts.gd" id="1_outskirts"]
 [ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
-[ext_resource type="Script" path="res://scripts/world/scavenge_item.gd" id="3_item"]
-[ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="4_pickup"]
+[ext_resource type="Script" uid="uid://cmuq0ydmuugd5" path="res://scripts/world/scavenge_item.gd" id="3_item"]
+[ext_resource type="Script" uid="uid://do8mmp6c4cglx" path="res://scripts/world/spell_pickup.gd" id="4_pickup"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_item"]
 radius = 18.0
@@ -141,5 +141,4 @@ theme_override_colors/font_shadow_color = Color(0, 0, 0, 0.8)
 theme_override_constants/shadow_offset_x = 1
 theme_override_constants/shadow_offset_y = 1
 theme_override_font_sizes/font_size = 20
-text = ""
 horizontal_alignment = 1

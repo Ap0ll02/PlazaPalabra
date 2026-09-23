@@ -18,6 +18,7 @@ func _ready() -> void:
 	reveal.tween_property(menu_panel, "position:x", menu_panel.position.x - 24.0, 0.34)
 
 func _on_play_pressed() -> void:
+	StudySession.reset_for_new_session()
 	get_tree().change_scene_to_file("res://scenes/ui/ConsentScreen.tscn")
 
 func _on_settings_pressed() -> void:

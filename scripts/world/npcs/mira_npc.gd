@@ -7,7 +7,7 @@ extends "res://scripts/world/npc.gd"
 const DIALOGUE_BEFORE := {
 	"start": {
 		"portrait": "mira_worried",
-		"text": "Please... someone robbed me. My money is gone!",
+		"text": "¡Por Favor! Can you help me? Some men just stole my coin!",
 		"next": "ask_help",
 	},
 	"ask_help": {
@@ -20,13 +20,13 @@ const DIALOGUE_BEFORE := {
 	},
 	"accept": {
 		"portrait": "mira_relieved",
-		"text": "Thank you! Please look around the market stalls -- maybe something was left behind.",
+		"text": "Thank you! ¡Gracias! I think just searching around these market stalls might be a good start...",
 		"on_enter": "start_quest_1",
 		"next": "end",
 	},
 	"decline": {
 		"portrait": "mira_sad",
-		"text": "Oh... please come back if you change your mind.",
+		"text": "Oh... please come back if you change your mind. This world could use more heroes.",
 		"next": "end",
 	},
 }
@@ -39,8 +39,13 @@ const DIALOGUE_FOUND := {
 	"start": {"portrait": "mira_worried", "text": "You found something! A note...", "next": "hint"},
 	"hint": {
 		"portrait": "mira_relieved",
-		"text": "This might mean something to Tomas -- he's near the well and knows everyone in town.",
+		"text": "This note, I don't know, 'No Lo Se' what it means. Perhaps Tomas, near the well, will have an idea!",
 		"on_enter": "start_quest_2_handoff",
+		"next": "hint_next",
+	},
+	"hint_next": {
+		"portrait": "mira_relieved",
+		"text": "Go talk to him!",
 		"next": "end",
 	},
 }

@@ -1,10 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://ck3m8w2n5p7q1"]
+[gd_scene load_steps=7 format=3 uid="uid://ck3m8w2n5p7q1"]
 
-[ext_resource type="Script" path="res://scripts/world/ruins.gd" id="1_ruins"]
-[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="Script" uid="uid://ceipippumod6j" path="res://scripts/world/ruins.gd" id="1_ruins"]
 [ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
-[ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="3_pickup"]
-[ext_resource type="Script" path="res://scripts/world/npcs/sombra_npc.gd" id="4_sombra"]
+[ext_resource type="Script" uid="uid://do8mmp6c4cglx" path="res://scripts/world/spell_pickup.gd" id="3_pickup"]
+[ext_resource type="Script" uid="uid://7bl02r4tyr8t" path="res://scripts/world/npcs/sombra_npc.gd" id="4_sombra"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
 radius = 60.0

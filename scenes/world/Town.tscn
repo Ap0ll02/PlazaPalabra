@@ -1,12 +1,12 @@
-[gd_scene load_steps=10 format=3 uid="uid://lz9q4m2n8k1p6"]
+[gd_scene load_steps=10 format=3 uid="uid://f15dhbwjyfgv"]
 
-[ext_resource type="Script" path="res://scripts/world/town.gd" id="1_town"]
-[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="Script" uid="uid://tuvycdq1cub6" path="res://scripts/world/town.gd" id="1_town"]
 [ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
-[ext_resource type="Script" path="res://scripts/world/npcs/mira_npc.gd" id="3_mira"]
-[ext_resource type="Script" path="res://scripts/world/npcs/tomas_npc.gd" id="4_tomas"]
-[ext_resource type="Script" path="res://scripts/world/search_spot.gd" id="5_search"]
-[ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="6_pickup"]
+[ext_resource type="Script" uid="uid://4m00d5xmm18h" path="res://scripts/world/npcs/mira_npc.gd" id="3_mira"]
+[ext_resource type="Script" uid="uid://dp62ftbx8tbye" path="res://scripts/world/npcs/tomas_npc.gd" id="4_tomas"]
+[ext_resource type="Script" uid="uid://dfw42fixwfu3" path="res://scripts/world/search_spot.gd" id="5_search"]
+[ext_resource type="Script" uid="uid://do8mmp6c4cglx" path="res://scripts/world/spell_pickup.gd" id="6_pickup"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
 radius = 50.0

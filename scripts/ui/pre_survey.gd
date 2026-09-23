@@ -25,9 +25,27 @@ func _get_config() -> Dictionary:
 
 func _ready() -> void:
 	super._ready()
+	var age_choice: OptionButton = _answer_controls["age_range"].control
+	age_choice.item_selected.connect(_on_age_selected)
 	dev_skip_button.visible = OS.is_debug_build()   # hidden in study (release) builds
 	dev_skip_button.pressed.connect(_on_dev_skip_pressed)
 
+func _on_age_selected(index: int) -> void:
+	var age_choice: OptionButton = _answer_controls["age_range"].control
+	if age_choice.get_item_text(index) == "Under 18":
+		StudySession.reset_for_new_session()
+		get_tree().change_scene_to_file("res://scenes/ui/MainMenu.tscn")
+
+func _on_submit_pressed() -> void:
+	if _unanswered_count() > 0:
+		super._on_submit_pressed()
+		return
+	if StudySession.pending_first_visit_code != "":
+		StudySession.configure(StudySession.pending_first_visit_code, 1)
+	super._on_submit_pressed()
+
 func _on_dev_skip_pressed() -> void:
+	if StudySession.pending_first_visit_code != "":
+		StudySession.configure(StudySession.pending_first_visit_code, 1)
 	StudySession.log_event("survey_dev_skipped", {"file": _get_config().filename})
 	get_tree().change_scene_to_file(_get_config().next_scene)
