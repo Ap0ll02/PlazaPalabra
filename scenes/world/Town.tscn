@@ -1,14 +1,12 @@
 [gd_scene load_steps=10 format=3 uid="uid://lz9q4m2n8k1p6"]
 
 [ext_resource type="Script" path="res://scripts/world/town.gd" id="1_town"]
-[ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
 [ext_resource type="Script" path="res://scripts/world/npcs/mira_npc.gd" id="3_mira"]
 [ext_resource type="Script" path="res://scripts/world/npcs/tomas_npc.gd" id="4_tomas"]
 [ext_resource type="Script" path="res://scripts/world/search_spot.gd" id="5_search"]
 [ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="6_pickup"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(28, 28)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
 radius = 50.0
@@ -33,16 +31,8 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.85)
 theme_override_font_sizes/font_size = 16
 text = "You enter town. Press Enter/Space near people or objects to interact."
 
-[node name="Player" type="CharacterBody2D" parent="."]
+[node name="Player" parent="." instance=ExtResource("2_player_scene")]
 position = Vector2(80, 380)
-script = ExtResource("2_player")
-
-[node name="Visual" type="Polygon2D" parent="Player"]
-color = Color(0.4, 0.65, 0.9, 1)
-polygon = PackedVector2Array(0, -16, 14, 10, 0, 16, -14, 10)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-shape = SubResource("RectangleShape2D_player")
 
 [node name="Mira" type="Area2D" parent="."]
 position = Vector2(420, 300)
@@ -50,9 +40,10 @@ script = ExtResource("3_mira")
 npc_name = "Mira"
 portrait_id = "mira"
 
-[node name="Visual" type="Polygon2D" parent="Mira"]
-color = Color(0.75, 0.4, 0.45, 1)
-polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+[node name="Visual" type="Node2D" parent="Mira"]
+script = ExtResource("csprite")
+character_id = "mira"
+fallback_color = Color(0.75, 0.4, 0.45, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Mira"]
 shape = SubResource("CircleShape2D_npc")
@@ -63,9 +54,10 @@ script = ExtResource("4_tomas")
 npc_name = "Tomas"
 portrait_id = "tomas"
 
-[node name="Visual" type="Polygon2D" parent="Tomas"]
-color = Color(0.5, 0.45, 0.7, 1)
-polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+[node name="Visual" type="Node2D" parent="Tomas"]
+script = ExtResource("csprite")
+character_id = "tomas"
+fallback_color = Color(0.5, 0.45, 0.7, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Tomas"]
 shape = SubResource("CircleShape2D_npc")

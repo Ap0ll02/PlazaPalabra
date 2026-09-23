@@ -1,12 +1,10 @@
 [gd_scene load_steps=6 format=3 uid="uid://ck3m8w2n5p7q1"]
 
 [ext_resource type="Script" path="res://scripts/world/ruins.gd" id="1_ruins"]
-[ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
 [ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="3_pickup"]
 [ext_resource type="Script" path="res://scripts/world/npcs/sombra_npc.gd" id="4_sombra"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(28, 28)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_npc"]
 radius = 60.0
@@ -28,16 +26,8 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.85)
 theme_override_font_sizes/font_size = 16
 text = "The old ruins. Sombra is waiting at the far end. Press Enter/Space next to people or objects."
 
-[node name="Player" type="CharacterBody2D" parent="."]
+[node name="Player" parent="." instance=ExtResource("2_player_scene")]
 position = Vector2(80, 380)
-script = ExtResource("2_player")
-
-[node name="Visual" type="Polygon2D" parent="Player"]
-color = Color(0.4, 0.65, 0.9, 1)
-polygon = PackedVector2Array(0, -16, 14, 10, 0, 16, -14, 10)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-shape = SubResource("RectangleShape2D_player")
 
 [node name="IceScroll" type="Area2D" parent="."]
 position = Vector2(640, 110)
@@ -62,9 +52,10 @@ script = ExtResource("4_sombra")
 npc_name = "Sombra"
 portrait_id = "sombra"
 
-[node name="Visual" type="Polygon2D" parent="Sombra"]
-color = Color(0.25, 0.2, 0.3, 1)
-polygon = PackedVector2Array(0, -24, 16, 4, 9, 26, -9, 26, -16, 4)
+[node name="Visual" type="Node2D" parent="Sombra"]
+script = ExtResource("csprite")
+character_id = "sombra"
+fallback_color = Color(0.25, 0.2, 0.3, 1)
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Sombra"]
 shape = SubResource("CircleShape2D_npc")

@@ -1,12 +1,10 @@
 [gd_scene load_steps=9 format=3 uid="uid://f7p2k9w4m1t6c"]
 
 [ext_resource type="Script" path="res://scripts/world/outskirts.gd" id="1_outskirts"]
-[ext_resource type="Script" path="res://scripts/world/player.gd" id="2_player"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
 [ext_resource type="Script" path="res://scripts/world/scavenge_item.gd" id="3_item"]
 [ext_resource type="Script" path="res://scripts/world/spell_pickup.gd" id="4_pickup"]
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
-size = Vector2(28, 28)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_item"]
 radius = 18.0
@@ -34,16 +32,8 @@ theme_override_colors/font_color = Color(1, 1, 1, 0.85)
 theme_override_font_sizes/font_size = 16
 text = "Move: WASD or arrow keys. Walk into items to learn their words. Press Enter/Space next to something that glows."
 
-[node name="Player" type="CharacterBody2D" parent="."]
+[node name="Player" parent="." instance=ExtResource("2_player_scene")]
 position = Vector2(140, 600)
-script = ExtResource("2_player")
-
-[node name="Visual" type="Polygon2D" parent="Player"]
-color = Color(0.4, 0.65, 0.9, 1)
-polygon = PackedVector2Array(0, -16, 14, 10, 0, 16, -14, 10)
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player"]
-shape = SubResource("RectangleShape2D_player")
 
 [node name="ItemRoca" type="Area2D" parent="."]
 position = Vector2(420, 250)
@@ -99,11 +89,12 @@ polygon = PackedVector2Array(-20, -10, 20, -10, 20, 10, -20, 10)
 [node name="CollisionShape2D" type="CollisionShape2D" parent="ScrollBola"]
 shape = SubResource("CircleShape2D_interact")
 
-[node name="Bandit" type="Polygon2D" parent="."]
+[node name="Bandit" type="Node2D" parent="."]
 visible = false
 position = Vector2(240, 400)
-color = Color(0.55, 0.4, 0.3, 1)
-polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+script = ExtResource("csprite")
+character_id = "bandit"
+fallback_color = Color(0.55, 0.4, 0.3, 1)
 
 [node name="TownEntrance" type="Area2D" parent="."]
 position = Vector2(1220, 360)

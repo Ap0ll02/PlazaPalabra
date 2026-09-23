@@ -1,0 +1,19 @@
+[gd_scene load_steps=3 format=3 uid="uid://c8k2n5w9x3m7r"]
+
+[ext_resource type="Script" path="res://scripts/world/player.gd" id="1_player"]
+[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="2_sprite"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_player"]
+size = Vector2(28, 28)
+
+[node name="Player" type="CharacterBody2D"]
+script = ExtResource("1_player")
+
+[node name="Visual" type="Node2D" parent="."]
+script = ExtResource("2_sprite")
+character_id = "player"
+fallback_color = Color(0.4, 0.65, 0.9, 1)
+fallback_shape = "diamond"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_player")
