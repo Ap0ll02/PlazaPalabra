@@ -14,6 +14,11 @@ plays the same either way. Handled by `scripts/world/character_sprite.gd`.
 | Bandit | `bandit` |
 | Jaguar | `jaguar` |
 
+The player uses four still images: `player.png` for up/back (and the initial
+view), `player_front.png` for down, `player_left.png` for left, and
+`player_right.png` for right. The last direction stays visible when stopped.
+Diagonal movement uses the horizontal image.
+
 New characters just need a `character_id` on their `CharacterSprite` node
 (`scripts/world/character_sprite.gd`) — no new convention to learn.
 

@@ -1,8 +1,8 @@
 [gd_scene load_steps=8 format=3 uid="uid://dx6ico1cgbo8o"]
 
 [ext_resource type="Script" uid="uid://dud26mlbi6if" path="res://scripts/world/jungle.gd" id="1_root"]
-[ext_resource type="PackedScene" path="res://scenes/world/Player.tscn" id="2_player_scene"]
-[ext_resource type="Script" path="res://scripts/world/character_sprite.gd" id="csprite"]
+[ext_resource type="PackedScene" uid="uid://c8k2n5xax3m7r" path="res://scenes/world/Player.tscn" id="2_player_scene"]
+[ext_resource type="Script" uid="uid://n8x7ia6vx4ol" path="res://scripts/world/character_sprite.gd" id="csprite"]
 [ext_resource type="Script" uid="uid://djm1msqc1bcfk" path="res://scripts/world/npcs/jaguar_npc.gd" id="jaguar"]
 [ext_resource type="Script" uid="uid://do8mmp6c4cglx" path="res://scripts/world/spell_pickup.gd" id="pickup"]
 

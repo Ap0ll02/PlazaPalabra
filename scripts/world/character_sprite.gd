@@ -28,20 +28,35 @@ const SHAPES := {
 @export var fallback_shape: String = "person"
 ## Nudges a real sprite up/down to line up its feet with the placeholder's.
 @export var foot_offset: float = 0.0
+var _sprite: Sprite2D
+var _facing := "back"
 
 func _ready() -> void:
 	var path := "res://assets/sprites/characters/%s.png" % character_id
 	if character_id != "" and ResourceLoader.exists(path):
 		var tex: Texture2D = load(path)
-		var sprite := Sprite2D.new()
-		sprite.texture = tex
+		_sprite = Sprite2D.new()
+		_sprite.texture = tex
 		var scale_factor := PIXEL_WIDTH / tex.get_width()
-		sprite.scale = Vector2(scale_factor, scale_factor)
-		sprite.centered = false
-		sprite.position = Vector2(-PIXEL_WIDTH / 2.0, -tex.get_height() * scale_factor + foot_offset)
-		add_child(sprite)
+		_sprite.scale = Vector2(scale_factor, scale_factor)
+		_sprite.centered = false
+		_sprite.position = Vector2(-PIXEL_WIDTH / 2.0, -tex.get_height() * scale_factor + foot_offset)
+		add_child(_sprite)
 	else:
 		var poly := Polygon2D.new()
 		poly.color = fallback_color
 		poly.polygon = PackedVector2Array(SHAPES.get(fallback_shape, SHAPES.person))
 		add_child(poly)
+
+func set_facing(direction: String) -> void:
+	if _sprite == null or direction == _facing:
+		return
+	var suffix := "" if direction == "back" else "_" + direction
+	var path := "res://assets/sprites/characters/%s%s.png" % [character_id, suffix]
+	if ResourceLoader.exists(path):
+		var tex: Texture2D = load(path)
+		_sprite.texture = tex
+		var scale_factor := PIXEL_WIDTH / tex.get_width()
+		_sprite.scale = Vector2(scale_factor, scale_factor)
+		_sprite.position = Vector2(-PIXEL_WIDTH / 2.0, -tex.get_height() * scale_factor + foot_offset)
+		_facing = direction
