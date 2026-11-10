@@ -29,5 +29,11 @@ func _get_config() -> Dictionary:
 		"title": "A Few Questions About Your Experience",
 		"questions": QUESTIONS,
 		"filename": "survey_post.json",
-		"next_scene": "res://scenes/ui/RecallQuiz.tscn",
+		"next_scene": "res://scenes/world/TownReturn.tscn",
 	}
+
+func _on_submit_pressed() -> void:
+	var entering_second_portion: bool = _unanswered_count() == 0 and _get_config().next_scene == "res://scenes/world/TownReturn.tscn"
+	super._on_submit_pressed()
+	if entering_second_portion:
+		StudySession.begin_second_portion()

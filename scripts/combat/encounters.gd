@@ -23,9 +23,9 @@ const TOMAS_SPAR := {
 	"enemies": [{
 		"name": "Tomas", "hp": 60, "color": Color(0.38, 0.58, 0.7),
 		"spells": [
-			{"es": "¡Te golpeo!", "en": "I hit you!", "kind": "attack", "power": 7},
-			{"es": "¡Me protejo!", "en": "I protect myself!", "kind": "shield", "power": 8},
-			{"es": "¡Me curo!", "en": "I heal myself!", "kind": "heal", "power": 6},
+			{"es": "¡Yo disparo un rayo!", "en": "I shoot a lightning bolt!", "kind": "attack", "power": 7},
+			{"es": "¡Yo me protejo!", "en": "I protect myself!", "kind": "shield", "power": 8},
+			{"es": "¡Yo me sano!", "en": "I heal myself!", "kind": "heal", "power": 6},
 		],
 	}],
 }

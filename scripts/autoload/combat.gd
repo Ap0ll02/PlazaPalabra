@@ -18,6 +18,8 @@ signal finished(encounter_id: String, won: bool)
 const Config := preload("res://scripts/combat/combat_config.gd")
 const Encounters := preload("res://scripts/combat/encounters.gd")
 const CombatState := preload("res://scripts/combat/combat_state.gd")
+const SpellIcons := preload("res://scripts/ui/spell_icons.gd")
+const INTENT_ICONS := {"attack": "rayo", "shield": "muro_de_piedra", "heal": "luz_curativa"}
 
 const DIGIT_KEYS := {
 	KEY_1: 0, KEY_2: 1, KEY_3: 2, KEY_4: 3, KEY_5: 4,
@@ -57,6 +59,7 @@ var phase := Phase.NONE
 
 var _rng := RandomNumberGenerator.new()
 var _encounter_id := ""
+var _mechanic := "standard"
 var _enemy_ui: Array = []
 var _hotkeys: Array = []
 var _target_badges: Array = []
@@ -107,6 +110,7 @@ func start(encounter_id: String) -> void:
 			if not enc.loadout.has(spell_id):
 				enc.loadout[spell_id] = 2
 	_encounter_id = encounter_id
+	_mechanic = StudySession.mechanic_for_encounter(encounter_id)
 	state = CombatState.new(enc, _rng, GameState.MAX_HP)
 	GameState.hp = state.player_hp
 	_first_refresh = true
@@ -115,7 +119,7 @@ func start(encounter_id: String) -> void:
 	Fx.fade_in(overlay)
 	title_label.text = enc.title
 	_build_enemies()
-	StudySession.log_event("combat_started", {"encounter": encounter_id})
+	StudySession.log_event("combat_started", {"encounter": encounter_id, "mechanic": _mechanic})
 	_begin_player_turn()
 
 func _end(won: bool) -> void:
@@ -128,7 +132,7 @@ func _end(won: bool) -> void:
 	next_button.text = "Continue  [Enter]"
 	next_button.visible = true
 	StudySession.log_event("combat_ended", {
-		"encounter": _encounter_id, "won": won, "rounds": state.round_number, "hp_left": state.player_hp,
+		"encounter": _encounter_id, "mechanic": _mechanic, "won": won, "rounds": state.round_number, "hp_left": state.player_hp,
 	})
 
 func _close() -> void:
@@ -142,6 +146,15 @@ func _close() -> void:
 
 func _begin_player_turn() -> void:
 	state.begin_player_turn()
+	if _mechanic == "intent":
+		for index in state.living():
+			var plan := state.plan_enemy_action(index)
+			var ui: Dictionary = _enemy_ui[index]
+			ui.intent_icon.texture = SpellIcons.get_icon(INTENT_ICONS[plan.spell.kind])
+			ui.intent_icon.visible = true
+			ui.intent_label.text = plan.spell.es
+			ui.intent_label.visible = true
+			StudySession.log_event("combat_enemy_intent", {"encounter": _encounter_id, "enemy": state.enemies[index].name, "spell": plan.spell.es, "round": state.round_number})
 	turn_label.text = "Round %d" % state.round_number
 	_refresh_all()
 	_show_menu()
@@ -411,6 +424,8 @@ func _next_enemy() -> void:
 		_begin_player_turn()
 		return
 	var index: int = _enemy_queue.pop_front()
+	_enemy_ui[index].intent_icon.visible = false
+	_enemy_ui[index].intent_label.visible = false
 	var act := state.enemy_action(index)
 	GameState.hp = state.player_hp
 	StudySession.log_event("combat_enemy_action", {
@@ -496,6 +511,16 @@ func _build_enemies() -> void:
 		b.move_child(shadow, 0)
 
 		var name_label := _label(e.name, 18, Vector2(0, 172), 200)
+		var intent_icon := TextureRect.new()
+		intent_icon.position = Vector2(4, 4)
+		intent_icon.size = Vector2(28, 28)
+		intent_icon.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		intent_icon.visible = false
+		intent_icon.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		var intent_label := _label("", 13, Vector2(36, 2), 162)
+		intent_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		intent_label.size.y = 46
+		intent_label.visible = false
 		var bar := ProgressBar.new()
 		bar.position = Vector2(10, 204)
 		bar.size = Vector2(180, 22)
@@ -509,10 +534,10 @@ func _build_enemies() -> void:
 		_outline(hp)
 		var tag := _label("", 14, Vector2(0, 232), 200)
 		tag.add_theme_color_override("font_color", Color(0.6, 0.8, 1))
-		for node in [name_label, bar, hp, tag]:
+		for node in [name_label, bar, hp, tag, intent_icon, intent_label]:
 			b.add_child(node)
 		enemy_row.add_child(b)
-		_enemy_ui.append({"button": b, "bar": bar, "hp": hp, "tag": tag, "figure": figure})
+		_enemy_ui.append({"button": b, "bar": bar, "hp": hp, "tag": tag, "figure": figure, "intent_icon": intent_icon, "intent_label": intent_label})
 
 # --- Look ---------------------------------------------------------------------------
 

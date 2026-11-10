@@ -5,15 +5,14 @@ Usage:
     python3 tools/aggregate_study_data.py <study_data_dir> [output_dir]
 
 <study_data_dir> is the folder holding one subfolder per session (named like
-P<code>_visit<N>_<date>_<time>). In an exported build it sits next to the
+P<code>_<date>_<time>). In an exported build it sits next to the
 game executable; when running from the Godot editor on macOS it is
   ~/Library/Application Support/Godot/app_userdata/PlazaPalabra/study_data
 (on Linux: ~/.local/share/godot/app_userdata/PlazaPalabra/study_data).
 
 Output (default: <study_data_dir>/combined/): events.csv, word_stats.csv,
-recall_quiz.csv, survey_pre.csv, survey_post.csv, survey_followup.csv,
-recap_assignment.csv, spell_progress.csv, session.csv. Every row already
-carries session_id, participant_code and visit, so the stacked files can be
+recall_quiz.csv, spell_progress.csv, session.csv. Every row already
+carries session_id and participant_code, so the stacked files can be
 filtered/joined directly in Excel, LibreOffice, pandas or R.
 
 Standard library only.

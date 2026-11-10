@@ -50,7 +50,7 @@ func _ready() -> void:
 	var spacer := Control.new()
 	spacer.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	root.add_child(spacer)
-	root.add_child(_return_panel())
+	root.add_child(_completion_panel())
 
 	var button := Button.new()
 	button.text = "Continue  [Enter]"
@@ -76,8 +76,6 @@ func _accuracy() -> int:
 	return -1 if total < MIN_ANSWERS_FOR_ACCURACY else int(round(100.0 * Praise.total_correct / total))
 
 func _headline() -> String:
-	if StudySession.visit_number > 1:
-		return "Welcome back, and thank you for coming back. Here is how this session went."
 	return "You played through the whole adventure. Here is what you achieved."
 
 func _stats() -> Array:
@@ -146,9 +144,9 @@ func _focus_line() -> String:
 	if worst == "" or worst_errors < 2:
 		return ""
 	var word: Dictionary = WordBank.get_word(worst)
-	return "Next time, try to spot \"%s\" (%s): a little more practice and it's yours." % [word.spanish, word.english]
+	return "Keep practicing \"%s\" (%s): a little more practice and it's yours." % [word.spanish, word.english]
 
-func _return_panel() -> Control:
+func _completion_panel() -> Control:
 	var panel := PanelContainer.new()
 	panel.add_theme_stylebox_override("panel", _box(Color(1, 1, 1, 0.07), 14))
 	var col := VBoxContainer.new()
@@ -158,11 +156,7 @@ func _return_panel() -> Control:
 		margin.add_theme_constant_override("margin_" + side, 8)
 	margin.add_child(col)
 	panel.add_child(margin)
-	if StudySession.visit_number > 1:
-		col.add_child(_label("Thank you for being part of this study!", 20, GOLD, true))
-		return panel
-	col.add_child(_label("Bring this code back in about a week for harder challenges:", 16, Color(1, 1, 1, 0.8), true))
-	col.add_child(_label(StudySession.participant_code, 38, GOLD, true))
+	col.add_child(_label("Thank you for being part of this study!", 20, GOLD, true))
 	return panel
 
 # --- Widgets ---------------------------------------------------------------------------

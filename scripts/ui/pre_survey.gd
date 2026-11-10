@@ -40,12 +40,12 @@ func _on_submit_pressed() -> void:
 	if _unanswered_count() > 0:
 		super._on_submit_pressed()
 		return
-	if StudySession.pending_first_visit_code != "":
-		StudySession.configure(StudySession.pending_first_visit_code, 1)
+	if StudySession.pending_participant_code != "":
+		StudySession.configure(StudySession.pending_participant_code)
 	super._on_submit_pressed()
 
 func _on_dev_skip_pressed() -> void:
-	if StudySession.pending_first_visit_code != "":
-		StudySession.configure(StudySession.pending_first_visit_code, 1)
+	if StudySession.pending_participant_code != "":
+		StudySession.configure(StudySession.pending_participant_code)
 	StudySession.log_event("survey_dev_skipped", {"file": _get_config().filename})
 	get_tree().change_scene_to_file(_get_config().next_scene)

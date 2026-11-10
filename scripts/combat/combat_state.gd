@@ -20,6 +20,7 @@ var accuracy_bonus := 0
 var hp_floor := 0
 ## Each: {name, hp, max_hp, shield, spells, color, boss}
 var enemies: Array = []
+var planned_enemy_actions: Dictionary = {}
 
 func _init(enc: Dictionary, rng_: RandomNumberGenerator, max_hp: int) -> void:
 	encounter = enc
@@ -232,8 +233,8 @@ func resolve_struggle(target: int) -> Dictionary:
 
 # --- Enemy side ------------------------------------------------------------
 
-## One enemy casts a random spell from its pool.
-func enemy_action(index: int) -> Dictionary:
+## Choose an action before the player turn so the preview is a real promise.
+func plan_enemy_action(index: int) -> Dictionary:
 	var e: Dictionary = enemies[index]
 	# Phase change: below the threshold the enemy switches to a stronger set
 	# of moves and announces it (once).
@@ -243,6 +244,19 @@ func enemy_action(index: int) -> Dictionary:
 		e.spells = e.phase2.spells
 		phase_line = {"es": e.phase2.es, "en": e.phase2.en}
 	var spell: Dictionary = e.spells[rng.randi_range(0, e.spells.size() - 1)]
+	var plan := {"spell": spell, "phase_change": phase_line}
+	planned_enemy_actions[index] = plan
+	return plan
+
+## Execute the previewed action, or select one now for standard combat.
+func enemy_action(index: int) -> Dictionary:
+	var plan: Dictionary = planned_enemy_actions.get(index, {})
+	if plan.is_empty():
+		plan = plan_enemy_action(index)
+	planned_enemy_actions.erase(index)
+	var e: Dictionary = enemies[index]
+	var spell: Dictionary = plan.spell
+	var phase_line: Dictionary = plan.phase_change
 	var result := {"enemy": index, "name": e.name, "spell": spell, "taken": 0, "absorbed": 0, "gained": 0, "rescued": 0, "phase_change": phase_line}
 	match spell.kind:
 		"attack":

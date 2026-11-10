@@ -9,16 +9,14 @@ extends Node
 
 var session_id: String = ""
 var participant_code: String = ""
-var pending_first_visit_code: String = ""
+var pending_participant_code: String = ""
 var pending_consent_given := false
-var visit_number: int = 1
-var prior_word_ids: Array = [] ## populated on visit >= 2 from the linked prior session
-var prior_word_stats: Dictionary = {} ## word_id -> Week-1 stats (errors, seen, ...)
-## Week-2 recap experiment: each word missed in Week 1 is randomly assigned
-## "emphasized" (extra retrieval rounds) or "standard" (a single card); the
-## rest are "never_missed" controls. See assign_recap_arms().
-var recap_arm: Dictionary = {}    ## word_id -> "emphasized" | "standard"
-var recap_never_missed: Array = []
+var portion_number: int = 1
+var combat_order: Array[String] = []
+var chosen_mechanic: String = ""
+## Kept until the unreachable Recap scene is removed in the next pass.
+var prior_word_ids: Array = []
+var recap_arm: Dictionary = {}
 ## Filled in by RecallQuiz so the end-of-session summary can show the score.
 var last_recall_correct := 0
 var last_recall_total := 0
@@ -26,148 +24,77 @@ var _data_dir: String = ""
 var _session_start_msec: int = 0
 
 ## Clear the previous session before a new person reaches the consent screen.
-## A first-time participant's code stays in memory until adult eligibility is known.
+## The participant's code stays in memory until adult eligibility is known.
 func reset_for_new_session() -> void:
 	session_id = ""
 	participant_code = ""
-	pending_first_visit_code = ""
+	pending_participant_code = ""
 	pending_consent_given = false
-	visit_number = 1
+	portion_number = 1
+	combat_order.clear()
+	chosen_mechanic = ""
 	_data_dir = ""
 	_session_start_msec = 0
-	prior_word_ids = []
-	prior_word_stats = {}
-	recap_arm = {}
-	recap_never_missed = []
 
-## Called for return visits at ParticipantScreen, or after an eligible
-## first-time participant completes the pre-survey.
-func configure(code: String, visit: int) -> void:
-	pending_first_visit_code = ""
+## Called after an eligible participant completes the pre-survey.
+func configure(code: String) -> void:
+	pending_participant_code = ""
 	participant_code = code
-	visit_number = visit
+	portion_number = 1
+	combat_order.clear()
+	chosen_mechanic = ""
 	var dt := Time.get_datetime_dict_from_system()
-	session_id = "P%s_visit%d_%04d%02d%02d_%02d%02d%02d" % [
-		participant_code, visit_number, dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second
+	session_id = "P%s_%04d%02d%02d_%02d%02d%02d" % [
+		participant_code, dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second
 	]
 	_data_dir = _resolve_base_dir().path_join("study_data").path_join(session_id)
 	DirAccess.make_dir_recursive_absolute(_data_dir)
 	_session_start_msec = Time.get_ticks_msec()
+	_assign_combat_order()
 
-	prior_word_ids = []
-	prior_word_stats = {}
-	recap_arm = {}
-	recap_never_missed = []
-	if visit_number > 1:
-		var prior := _find_linked_session(code, visit_number - 1)
-		if prior.has("word_stats"):
-			prior_word_ids = prior.word_stats.keys()
-			prior_word_ids.sort()
-			prior_word_stats = prior.word_stats
-			assign_recap_arms()
-		# Week 2 starts with the spells (and practice) earned in Week 1.
-		SpellProgress.restore(prior.get("spell_progress", {}))
-		log_event("session_start", {
-			"participant_code": participant_code, "visit_number": visit_number,
-			"prior_words_found": prior_word_ids.size(),
-		})
-	else:
-		log_event("session_start", {"participant_code": participant_code, "visit_number": visit_number})
+	log_event("session_start", {"participant_code": participant_code, "portion": portion_number, "combat_order": combat_order})
 	if pending_consent_given:
 		log_event("consent_given")
 		pending_consent_given = false
 
-## Randomized within-person assignment for the Week-2 recap. A word is
-## "missed" if it had at least one error in Week 1. Missed words are split
-## by matched-pairs randomization into two arms of (nearly) equal size and
-## equal Week-1 difficulty, so any later difference
-## between the arms is attributable to the emphasis and not to word
-## difficulty or regression to the mean. The RNG is seeded from the
-## participant code, so the assignment is reproducible for audit.
-func assign_recap_arms() -> void:
-	var missed: Array = []
-	recap_never_missed = []
-	for id in prior_word_ids:
-		if int(prior_word_stats.get(id, {}).get("errors", 0)) >= 1:
-			missed.append(id)
-		else:
-			recap_never_missed.append(id)
-	# Matched pairs: order missed words by how badly they were missed (most
-	# errors first, id as tiebreak), pair neighbours, and coin-flip which of
-	# each pair is emphasized. This keeps the two arms balanced on Week-1
-	# difficulty as well as size. An odd word out is a coin flip too.
-	var rng := RandomNumberGenerator.new()
-	rng.seed = hash(participant_code + "|recap")
-	missed.sort_custom(func(x, y):
-		var ex := int(prior_word_stats[x].get("errors", 0))
-		var ey := int(prior_word_stats[y].get("errors", 0))
-		return ex > ey if ex != ey else str(x) < str(y))
-	recap_arm = {}
-	var i := 0
-	while i < missed.size():
-		if i + 1 < missed.size():
-			var first_emphasized := rng.randf() < 0.5
-			recap_arm[missed[i]] = "emphasized" if first_emphasized else "standard"
-			recap_arm[missed[i + 1]] = "standard" if first_emphasized else "emphasized"
-			i += 2
-		else:
-			recap_arm[missed[i]] = "emphasized" if rng.randf() < 0.5 else "standard"
-			i += 1
-	if missed.size() < 2:
-		# Too few to randomize: everything gets the standard recap.
-		for id in missed:
-			recap_arm[id] = "standard"
-	save_json("recap_assignment.json", {
-		"rule": "missed = >=1 error in Week 1; matched-pairs randomization (pairs adjacent by error count)",
-		"seed_source": "hash(participant_code|recap)",
-		"missed_count": missed.size(),
-		"arm": recap_arm,
-		"never_missed": recap_never_missed,
-	})
-	var recap_rows: Array = []
-	for id in recap_arm:
-		recap_rows.append([id, recap_arm[id], int(prior_word_stats.get(id, {}).get("errors", 0))])
-	for id in recap_never_missed:
-		recap_rows.append([id, "never_missed", 0])
-	save_table("recap_assignment.csv", ["word_id", "arm", "week1_errors"], recap_rows)
-	log_event("recap_assigned", {
-		"missed": missed.size(),
-		"emphasized": recap_arm.values().count("emphasized"),
-		"standard": recap_arm.values().count("standard"),
-		"never_missed": recap_never_missed.size(),
-	})
+func begin_second_portion() -> void:
+	if portion_number == 2:
+		return
+	portion_number = 2
+	log_event("gameplay_portion_started", {"portion": portion_number, "after": "post_questionnaire"})
 
-## Finds the most recent prior session folder for this code/visit and
-## returns its session_summary.json (or {} if none exists -- e.g. a
-## mistyped code, or genuinely the first time this code has been used).
-func _find_linked_session(code: String, visit: int) -> Dictionary:
-	var base := _resolve_base_dir().path_join("study_data")
-	var prefix := "P%s_visit%d_" % [code, visit]
-	var dir := DirAccess.open(base)
-	if not dir:
-		return {}
-	var candidates: Array = []
-	dir.list_dir_begin()
-	var name := dir.get_next()
-	while name != "":
-		if dir.current_is_dir() and name.begins_with(prefix):
-			candidates.append(name)
-		name = dir.get_next()
-	dir.list_dir_end()
-	if candidates.is_empty():
-		return {}
-	candidates.sort()
-	var summary_path := base.path_join(candidates[-1]).path_join("session_summary.json")
-	if not FileAccess.file_exists(summary_path):
-		return {}
-	var f := FileAccess.open(summary_path, FileAccess.READ)
-	var text := f.get_as_text()
-	f.close()
-	var parsed = JSON.parse_string(text)
-	return parsed if parsed is Dictionary else {}
+func mechanic_for_encounter(encounter_id: String) -> String:
+	if combat_order.size() != 2:
+		return "standard"
+	match encounter_id:
+		"tomas_spar_1": return combat_order[0]
+		"tomas_spar_2", "sombra_boss": return combat_order[1]
+		_: return chosen_mechanic if portion_number == 2 and chosen_mechanic != "" else "standard"
 
-## Short, human-writable code (no ambiguous 0/O or 1/I) offered to
-## first-time participants to bring back for a follow-up session.
+## Alternate assignments across locally recorded participants to keep the two
+## orders as balanced as possible on a single study computer.
+func _assign_combat_order() -> void:
+	var intent_first := 0
+	var standard_first := 0
+	var root := DirAccess.open(_resolve_base_dir().path_join("study_data"))
+	if root:
+		root.list_dir_begin()
+		var entry := root.get_next()
+		while entry != "":
+			if root.current_is_dir() and entry != session_id:
+				var path := root.get_current_dir().path_join(entry).path_join("combat_assignment.json")
+				if FileAccess.file_exists(path):
+					var assignment = JSON.parse_string(FileAccess.get_file_as_string(path))
+					if assignment is Dictionary and assignment.get("first", "") == "intent":
+						intent_first += 1
+					elif assignment is Dictionary and assignment.get("first", "") == "standard":
+						standard_first += 1
+			entry = root.get_next()
+		root.list_dir_end()
+	combat_order = ["intent", "standard"] if intent_first < standard_first else ["standard", "intent"]
+	save_json("combat_assignment.json", {"first": combat_order[0], "second": combat_order[1], "sombra": combat_order[1]})
+
+## Short, human-writable code (no ambiguous 0/O or 1/I).
 func generate_participant_code() -> String:
 	const CHARS := "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 	var rng := RandomNumberGenerator.new()
@@ -187,6 +114,7 @@ func log_event(event_type: String, payload: Dictionary = {}) -> void:
 		return # not configured yet (e.g. a scene run directly from the editor)
 	var entry := {
 		"t_msec": Time.get_ticks_msec() - _session_start_msec,
+		"portion": portion_number,
 		"event": event_type,
 		"data": payload,
 	}
@@ -195,7 +123,7 @@ func log_event(event_type: String, payload: Dictionary = {}) -> void:
 	if not FileAccess.file_exists(path):
 		_append_line(path, csv_line(EVENT_COLUMNS))
 	_append_line(path, csv_line([
-		session_id, participant_code, visit_number, entry.t_msec, event_type,
+		session_id, participant_code, portion_number, entry.t_msec, event_type,
 		payload.get("word_id", ""), payload.get("spell_id", ""), payload.get("correct", ""),
 		payload.get("kind", ""), JSON.stringify(payload),
 	]))
@@ -203,14 +131,14 @@ func log_event(event_type: String, payload: Dictionary = {}) -> void:
 # --- CSV output --------------------------------------------------------------
 # Every table is a plain CSV (UTF-8, comma separated, quoted where needed) so
 # it opens directly in Excel / LibreOffice and loads in pandas or R. Each row
-# starts with session_id, participant_code, visit so files from many
+# starts with session_id and participant_code so files from many
 # sessions can be stacked (tools/aggregate_study_data.py does that).
 
 const EVENT_COLUMNS := [
-	"session_id", "participant_code", "visit", "t_msec", "event",
+	"session_id", "participant_code", "portion", "t_msec", "event",
 	"word_id", "spell_id", "correct", "kind", "detail_json",
 ]
-const KEY_COLUMNS := ["session_id", "participant_code", "visit"]
+const KEY_COLUMNS := ["session_id", "participant_code"]
 
 static func csv_field(value) -> String:
 	var text := str(value)
@@ -231,7 +159,7 @@ func save_table(filename: String, headers: Array, rows: Array) -> void:
 		return
 	f.store_line(csv_line(KEY_COLUMNS + headers))
 	for row in rows:
-		f.store_line(csv_line([session_id, participant_code, visit_number] + row))
+		f.store_line(csv_line([session_id, participant_code] + row))
 	f.close()
 
 func save_json(filename: String, data: Dictionary) -> void:
@@ -251,13 +179,13 @@ func write_session_summary() -> void:
 	save_json("session_summary.json", {
 		"session_id": session_id,
 		"participant_code": participant_code,
-		"visit_number": visit_number,
-		"prior_word_ids": prior_word_ids,
+		"final_portion": portion_number,
+		"combat_order": combat_order,
+		"chosen_mechanic": chosen_mechanic,
 		"quest_stage_reached": GameState.quest_stage,
 		"final_hp": GameState.hp,
 		"word_stats": word_stats,
 		"spell_progress": SpellProgress.snapshot(),
-		"recap_arm": recap_arm,
 		"duration_msec": Time.get_ticks_msec() - _session_start_msec,
 	})
 
@@ -270,12 +198,9 @@ func _write_summary_tables() -> void:
 		var word: Dictionary = WordBank.get_word(id)
 		word_rows.append([
 			id, word.spanish, word.english, st.seen, st.correct, st.errors, st.hinted,
-			recap_arm.get(id, "never_missed" if id in recap_never_missed else ""),
-			int(prior_word_stats.get(id, {}).get("errors", 0)),
 		])
 	save_table("word_stats.csv", [
 		"word_id", "spanish", "english", "seen", "correct", "errors", "hinted",
-		"recap_group", "week1_errors",
 	], word_rows)
 	var spell_rows: Array = []
 	var progress := SpellProgress.snapshot()

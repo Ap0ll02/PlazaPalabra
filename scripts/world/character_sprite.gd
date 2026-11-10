@@ -1,9 +1,7 @@
 extends Node2D
-## A character's world sprite, centralized so importing art never means
-## editing scenes. Drop `assets/sprites/characters/<character_id>.png` in
-## the project and every scene using that id picks it up automatically; with
-## no file yet, a placeholder shape (tinted `fallback_color`) shows instead
-## so the game looks and plays the same either way. Same convention as
+## A character's world sprite. Named character art is mapped below; other
+## sprites use `assets/sprites/characters/<character_id>.png`. With no file,
+## a placeholder shape (tinted `fallback_color`) shows instead. Same convention as
 ## SpellIcons (assets/icons/spells/) and the dialogue portraits
 ## (assets/portraits/) -- see assets/sprites/characters/README.md.
 ##
@@ -15,6 +13,12 @@ extends Node2D
 ## and roughly the same apparent height as other characters at PIXEL_WIDTH.
 
 const PIXEL_WIDTH := 64.0
+const CHARACTER_ART := {
+	"mira": "mira_pixel.png",
+	"tomas": "tomas_pixel.png",
+	"sombra": "sombra_pixel.png",
+	"bandit": "hench_pixel.png",
+}
 
 ## Placeholder shapes, in case an id has no art yet -- same look as the
 ## hand-drawn polygons this replaces.
@@ -33,6 +37,8 @@ var _facing := "back"
 
 func _ready() -> void:
 	var path := "res://assets/sprites/characters/%s.png" % character_id
+	if CHARACTER_ART.has(character_id):
+		path = "res://assets/sprites/%s" % CHARACTER_ART[character_id]
 	if character_id != "" and ResourceLoader.exists(path):
 		var tex: Texture2D = load(path)
 		_sprite = Sprite2D.new()

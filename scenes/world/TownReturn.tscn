@@ -44,20 +44,23 @@ shape = SubResource("CircleShape2D_npc")
 
 [node name="Bandits" type="Node2D" parent="."]
 
-[node name="Bandit1" type="Polygon2D" parent="Bandits"]
+[node name="Bandit1" type="Node2D" parent="Bandits"]
 position = Vector2(520, 300)
-color = Color(0.55, 0.4, 0.3, 1)
-polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+script = ExtResource("csprite")
+character_id = "bandit"
+fallback_color = Color(0.55, 0.4, 0.3, 1)
 
-[node name="Bandit2" type="Polygon2D" parent="Bandits"]
+[node name="Bandit2" type="Node2D" parent="Bandits"]
 position = Vector2(760, 300)
-color = Color(0.55, 0.4, 0.3, 1)
-polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+script = ExtResource("csprite")
+character_id = "bandit"
+fallback_color = Color(0.55, 0.4, 0.3, 1)
 
-[node name="Bandit3" type="Polygon2D" parent="Bandits"]
+[node name="Bandit3" type="Node2D" parent="Bandits"]
 position = Vector2(640, 480)
-color = Color(0.55, 0.4, 0.3, 1)
-polygon = PackedVector2Array(0, -22, 14, 4, 8, 24, -8, 24, -14, 4)
+script = ExtResource("csprite")
+character_id = "bandit"
+fallback_color = Color(0.55, 0.4, 0.3, 1)
 
 [node name="JungleExit" type="Area2D" parent="."]
 visible = false
