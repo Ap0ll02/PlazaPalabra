@@ -13,6 +13,23 @@ extends RefCounted
 ##                  line `es`, its English `en`, a `kind` (attack / shield /
 ##                  heal) and a `power`
 
+const TOMAS_SPAR := {
+	"title": "Practice with Tomas",
+	"win_hp_pct": 20,
+	"rescue_at_hp": 20,
+	"rescue_heal": 35,
+	"loadout": {"bola_de_fuego": 2, "rayo": 2, "muro_de_piedra": 2},
+	"win": "all",
+	"enemies": [{
+		"name": "Tomas", "hp": 60, "color": Color(0.38, 0.58, 0.7),
+		"spells": [
+			{"es": "¡Te golpeo!", "en": "I hit you!", "kind": "attack", "power": 7},
+			{"es": "¡Me protejo!", "en": "I protect myself!", "kind": "shield", "power": 8},
+			{"es": "¡Me curo!", "en": "I heal myself!", "kind": "heal", "power": 6},
+		],
+	}],
+}
+
 const ENCOUNTERS := {
 	"bandit_tutorial": {
 		"title": "Ambush!",
@@ -120,4 +137,8 @@ const ENCOUNTERS := {
 }
 
 static func get_encounter(encounter_id: String) -> Dictionary:
+	if encounter_id == "tomas_spar_1" or encounter_id == "tomas_spar_2":
+		var spar := TOMAS_SPAR.duplicate(true)
+		spar.title = "Practice with Tomas %d" % (1 if encounter_id == "tomas_spar_1" else 2)
+		return spar
 	return ENCOUNTERS.get(encounter_id, {})

@@ -102,6 +102,10 @@ func start(encounter_id: String) -> void:
 			return
 		enc = enc.duplicate()
 		enc.loadout = SpellProgress.book.duplicate()
+	if enc.has("win_hp_pct"):
+		for spell_id in SpellProgress.known_ids():
+			if not enc.loadout.has(spell_id):
+				enc.loadout[spell_id] = 2
 	_encounter_id = encounter_id
 	state = CombatState.new(enc, _rng, GameState.MAX_HP)
 	GameState.hp = state.player_hp
@@ -117,10 +121,10 @@ func start(encounter_id: String) -> void:
 func _end(won: bool) -> void:
 	phase = Phase.OVER
 	_clear_action()
-	prompt_label.text = "Victory!" if won else "Defeated..."
+	prompt_label.text = ("Tomas calls a stop!" if _encounter_id.begins_with("tomas_spar") else "Victory!") if won else "Defeated..."
 	if won:
 		Praise.celebrate("Victory!")
-	_show_text(feedback_label, "You won the fight." if won else "You couldn't keep going.")
+	_show_text(feedback_label, ("Tomas is down to 20% HP. Spar complete." if _encounter_id.begins_with("tomas_spar") else "You won the fight.") if won else "You couldn't keep going.")
 	next_button.text = "Continue  [Enter]"
 	next_button.visible = true
 	StudySession.log_event("combat_ended", {
@@ -411,6 +415,7 @@ func _next_enemy() -> void:
 	GameState.hp = state.player_hp
 	StudySession.log_event("combat_enemy_action", {
 		"enemy": act.name, "spell": act.spell.es, "taken": act.taken, "absorbed": act.absorbed,
+		"rescued": act.rescued,
 	})
 	phase = Phase.ENEMY
 	_clear_action()
@@ -432,6 +437,8 @@ func _next_enemy() -> void:
 				effect = "Your shield absorbs %d. " % act.absorbed + effect
 		"shield": effect = "%s raises a shield." % act.name
 		"heal": effect = "%s recovers %d HP." % [act.name, act.gained]
+	if act.rescued > 0:
+		effect += "\nDon't fall yet, amigo. Tomas restores %d HP." % act.rescued
 	_show_text(feedback_label, effect)
 	feedback_label.add_theme_color_override("font_color", Color.WHITE)
 	_schedule_translation(line_en)

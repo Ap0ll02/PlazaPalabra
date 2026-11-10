@@ -1,6 +1,4 @@
 extends Control
-## PLACEHOLDER consent text -- swap in the real IRB-approved language
-## before running an actual study session.
 
 @onready var agree_button: Button = $Margin/VBox/ButtonRow/AgreeButton
 @onready var decline_button: Button = $Margin/VBox/ButtonRow/DeclineButton

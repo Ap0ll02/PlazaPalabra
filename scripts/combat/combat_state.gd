@@ -47,6 +47,8 @@ func living() -> Array:
 	return out
 
 func is_won() -> bool:
+	if encounter.has("win_hp_pct"):
+		return enemies[0].hp * 100 <= enemies[0].max_hp * int(encounter.win_hp_pct)
 	var bosses: Array = enemies.filter(func(e): return e.boss)
 	if bosses.is_empty() or encounter.get("win", "all") == "all":
 		return living().is_empty()
@@ -162,8 +164,12 @@ func damage_enemy(index: int, amount: int) -> Dictionary:
 	var e: Dictionary = enemies[index]
 	var absorbed := mini(e.shield, amount)
 	e.shield -= absorbed
-	var dealt := amount - absorbed
-	e.hp = maxi(0, e.hp - dealt)
+	var damage := amount - absorbed
+	var floor_hp := 0
+	if encounter.has("win_hp_pct"):
+		floor_hp = ceili(e.max_hp * int(encounter.win_hp_pct) / 100.0)
+	var dealt := mini(damage, e.hp - floor_hp)
+	e.hp -= dealt
 	return {"kind": "damage", "target": index, "name": e.name, "amount": dealt, "absorbed": absorbed, "killed": e.hp <= 0}
 
 func _pick_target(target: int) -> int:
@@ -237,7 +243,7 @@ func enemy_action(index: int) -> Dictionary:
 		e.spells = e.phase2.spells
 		phase_line = {"es": e.phase2.es, "en": e.phase2.en}
 	var spell: Dictionary = e.spells[rng.randi_range(0, e.spells.size() - 1)]
-	var result := {"enemy": index, "name": e.name, "spell": spell, "taken": 0, "absorbed": 0, "gained": 0, "phase_change": phase_line}
+	var result := {"enemy": index, "name": e.name, "spell": spell, "taken": 0, "absorbed": 0, "gained": 0, "rescued": 0, "phase_change": phase_line}
 	match spell.kind:
 		"attack":
 			var absorbed := mini(shield, spell.power)
@@ -253,4 +259,7 @@ func enemy_action(index: int) -> Dictionary:
 			var healed := mini(spell.power, e.max_hp - e.hp)
 			e.hp += healed
 			result.gained = healed
+	if encounter.has("rescue_at_hp") and player_hp <= int(encounter.rescue_at_hp):
+		result.rescued = mini(int(encounter.rescue_heal), player_max_hp - player_hp)
+		player_hp += result.rescued
 	return result
